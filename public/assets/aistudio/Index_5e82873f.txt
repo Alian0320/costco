@@ -1,0 +1,2225 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- 💡 iOS 全螢幕獨立 App 模式支援 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+      body { 
+        padding: 8px; 
+        padding-bottom: 85px; 
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, '微軟正黑體', sans-serif; 
+        background-color: #f4f6f9;
+        -webkit-text-size-adjust: 100%;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .sticky-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1030;
+      }
+
+      .floating-bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1050;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(5px);
+        border-top: 1px solid #dee2e6;
+        padding: 8px 12px;
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+      }
+
+      .nav-pills {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        gap: 6px;
+        padding: 6px !important;
+        scrollbar-width: none;
+      }
+      .nav-pills::-webkit-scrollbar {
+        display: none;
+      }
+      .nav-pills .nav-item {
+        flex: 0 0 auto;
+      }
+      .nav-pills .nav-link {
+        font-size: 0.95rem;
+        padding: 6px 14px;
+        border-radius: 20px;
+      }
+
+      .purchase-large-table.table td, .purchase-large-table.table th {
+        vertical-align: middle;
+        font-size: 1.05rem; 
+        padding: 10px 6px;  
+        white-space: nowrap; 
+      }
+      .purchase-large-table .form-check-input {
+        width: 1.6em;
+        height: 1.6em;
+        cursor: pointer;
+        margin-top: 0;
+      }
+      .purchase-large-table .spreadsheet-input {
+        width: 100%;
+        min-width: 75px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        background: #fff;
+        padding: 4px 6px;
+        font-size: 1.05rem;
+      }
+      .purchase-large-table .spreadsheet-input:focus {
+        border-color: #0d6efd;
+        background: #fff;
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+      }
+
+      .pickup-large-table.table td, .pickup-large-table.table th {
+        vertical-align: middle;
+        font-size: 1.15rem;
+        padding: 14px 10px;
+        white-space: nowrap;
+      }
+      .pickup-large-table .form-check-input {
+        width: 1.8em;
+        height: 1.8em;
+        cursor: pointer;
+        margin-top: 0;
+      }
+
+      .orders-large-table.table td, .orders-large-table.table th {
+        vertical-align: middle;
+        font-size: 1.05rem;
+        padding: 10px 8px;
+        white-space: nowrap;
+      }
+      .orders-large-table .spreadsheet-input {
+        width: 100%;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        background: #fff;
+        padding: 6px 8px;
+        font-size: 1.05rem;
+      }
+      .orders-large-table .spreadsheet-input:focus {
+        border-color: #0d6efd;
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+      }
+      .orders-large-table .form-check-input {
+        width: 1.5em;
+        height: 1.5em;
+        cursor: pointer;
+        margin-top: 0;
+      }
+
+      table.table td, table.table th {
+        vertical-align: middle;
+        font-size: 0.92rem;
+        padding: 6px 6px;
+        white-space: nowrap; 
+      }
+
+      .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .date-buttons-container {
+        display: flex;
+        overflow-x: auto;
+        gap: 6px;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+      }
+      .date-buttons-container::-webkit-scrollbar {
+        display: none;
+      }
+      .date-btn {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        font-weight: bold;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+      }
+
+      .category-card {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 6px 10px;
+        text-align: center;
+        flex: 1;
+        min-width: 70px;
+      }
+
+      .bg-channel-line { background-color: #d4edda !important; color: #155724 !important; font-weight: bold; }
+      .bg-channel-line-private { background-color: #e2e3e5 !important; color: #383d41 !important; font-weight: bold; }
+      .bg-channel-fb { background-color: #cce5ff !important; color: #004085 !important; font-weight: bold; }
+      .bg-channel-ig { background-color: #f3d9fa !important; color: #6b21a8 !important; font-weight: bold; }
+      .bg-channel-threads { background-color: #f8d7da !important; color: #721c24 !important; font-weight: bold; }
+
+      .badge-3c { background-color: #d6d8d9; color: #1b1e21; }
+      .badge-life { background-color: #cfe2ff; color: #084298; }      
+      .badge-snack { background-color: #fff3cd; color: #664d03; }     
+      .badge-drink-box { background-color: #cff4fc; color: #055160; } 
+      .badge-health { background-color: #d1e7dd; color: #0f5132; }    
+      .badge-bakery { background-color: #ffe6d5; color: #853200; }    
+      .badge-cooked { background-color: #f8d7da; color: #842029; }    
+      .badge-instant { background-color: #e0cffc; color: #3d0a91; }  
+      .badge-chilled { background-color: #b6effb; color: #035368; }  
+      .badge-frozen { background-color: #9ec5fe; color: #0a3622; }   
+      .badge-dry { background-color: #e2e3e5; color: #41464b; }      
+      .badge-default { background-color: #e2e3e5; color: #383d41; }  
+
+      .card {
+        border-radius: 10px;
+        border: none;
+        margin-bottom: 8px !important;
+      }
+      
+      .customer-group-header {
+        background-color: #e9ecef !important;
+        font-weight: bold;
+      }
+
+      .spreadsheet-input {
+        width: 100%;
+        border: 1px solid transparent;
+        background: transparent;
+        padding: 2px 4px;
+        font-size: 0.92rem;
+      }
+      .spreadsheet-input:focus {
+        border-color: #0d6efd;
+        background: #fff;
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+      }
+
+      .notice-channel-col {
+        min-width: 280px;
+        flex: 1;
+      }
+      .notice-card {
+        background: #ffffff;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        white-space: pre-wrap;
+        word-break: break-word;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      }
+    </style>
+  </head>
+  <body onload="initApp()">
+    
+    <div class="container-fluid p-1">
+      
+      <!-- 頁籤切換列 -->
+      <ul class="nav nav-pills mb-2 bg-white rounded shadow-sm sticky-nav">
+        <li class="nav-item">
+          <button class="nav-link active fw-bold px-3" id="tab-purchase" onclick="switchTab('purchase')">🛒 現場採購</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link fw-bold px-3 text-secondary" id="tab-online" onclick="switchTab('online')">🌐 線上代購</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link fw-bold px-3 text-secondary" id="tab-pickup" onclick="switchTab('pickup')">📦 待取清單</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link fw-bold px-3 text-secondary" id="tab-notice" onclick="switchTab('notice')">📢 取貨通知</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link fw-bold px-3 text-secondary" id="tab-orders" onclick="switchTab('orders')">📋 訂單資料</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link fw-bold px-3 text-secondary" id="tab-history" onclick="switchTab('history')">📜 歷史訂單</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link fw-bold px-3 text-secondary" id="tab-product-db" onclick="switchTab('product-db')">🏷️ 商品資訊</button>
+        </li>
+      </ul>
+
+      <!-- 區塊 1：現場採購清單 -->
+      <div id="section-purchase">
+        <div class="card shadow-sm mb-2">
+          <div class="card-body bg-white p-2">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <h6 class="m-0 text-primary fw-bold">🛒 現場採購清單</h6>
+              <span id="sync-status" class="text-muted small" style="font-size: 0.75rem;"></span>
+            </div>
+            <hr class="my-1">
+            <div class="mb-2">
+              <div id="date-buttons-bar" class="date-buttons-container">
+                <span class="text-muted small">載入中...</span>
+              </div>
+            </div>
+            <div class="d-flex justify-content-around text-center mb-2">
+              <div class="bg-light p-1 rounded flex-fill me-1">
+                <span class="text-muted d-block" style="font-size: 0.75rem;">總項目數</span>
+                <span id="expected-count" class="fs-5 fw-bold text-dark">0</span>
+              </div>
+              <div class="bg-light p-1 rounded flex-fill ms-1">
+                <span class="text-muted d-block" style="font-size: 0.75rem;">已實際採購</span>
+                <span id="actual-count" class="fs-5 fw-bold text-success">0</span>
+              </div>
+            </div>
+            <div>
+              <span class="text-secondary small fw-bold d-block mb-1" style="font-size: 0.8rem;">📦 各分類採購數量：</span>
+              <div id="category-summary-bar" class="d-flex flex-wrap gap-1">
+                <span class="text-muted small">計算中...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-body p-0">
+            <div id="purchase-table" class="table-responsive m-0">
+              <div class="text-center p-4 text-muted">資料載入中...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="floating-bottom-bar d-flex justify-content-between align-items-center">
+          <button class="btn btn-success px-4 py-2 fw-bold shadow" onclick="markAsPurchasedUnpicked()">
+            ✅ 購買完成
+          </button>
+          <span class="text-muted small fw-bold text-end" style="font-size: 0.8rem;">💡 勾選完畢後點擊左側按鈕</span>
+        </div>
+      </div>
+
+      <!-- 區塊 1-2：線上代購清單 -->
+      <div id="section-online" style="display: none;">
+        <div class="card shadow-sm mb-2">
+          <div class="card-body bg-white p-2">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <h6 class="m-0 text-info text-dark fw-bold">🌐 線上代購清單 (全部未買)</h6>
+              <span id="online-sync-status" class="text-muted small" style="font-size: 0.75rem;"></span>
+            </div>
+            <hr class="my-1">
+            <div class="d-flex justify-content-around text-center mb-2">
+              <div class="bg-light p-1 rounded flex-fill me-1">
+                <span class="text-muted d-block" style="font-size: 0.75rem;">總項目數</span>
+                <span id="online-expected-count" class="fs-5 fw-bold text-dark">0</span>
+              </div>
+              <div class="bg-light p-1 rounded flex-fill ms-1">
+                <span class="text-muted d-block" style="font-size: 0.75rem;">已實際訂購</span>
+                <span id="online-actual-count" class="fs-5 fw-bold text-success">0</span>
+              </div>
+            </div>
+            <div>
+              <span class="text-secondary small fw-bold d-block mb-1" style="font-size: 0.8rem;">📦 各分類訂購數量：</span>
+              <div id="online-category-summary-bar" class="d-flex flex-wrap gap-1">
+                <span class="text-muted small">計算中...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-body p-0">
+            <div id="online-purchase-table" class="table-responsive m-0">
+              <div class="text-center p-4 text-muted">資料載入中...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="floating-bottom-bar d-flex justify-content-between align-items-center">
+          <button class="btn btn-success px-4 py-2 fw-bold shadow" onclick="markAsPurchasedUnpicked()">
+            ✅ 訂購完成
+          </button>
+          <span class="text-muted small fw-bold text-end" style="font-size: 0.8rem;">💡 勾選完畢後點擊左側按鈕</span>
+        </div>
+      </div>
+
+      <!-- 區塊 2：待取清單 -->
+      <div id="section-pickup" style="display: none;">
+        <div class="card shadow-sm mb-2">
+          <div class="card-body bg-white p-2">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="m-0 text-success fw-bold">📦 待取清單</h6>
+              <span id="pickup-sync-status" class="text-muted small" style="font-size: 0.75rem;"></span>
+            </div>
+            <div class="row g-2 align-items-center bg-light p-2 rounded border">
+              <div class="col-auto">
+                <span class="fw-bold small text-secondary">🔍 篩選：</span>
+              </div>
+              <div class="col">
+                <select id="filterPickupUser" class="form-select form-select-sm fw-bold" onchange="renderPickupTable()">
+                  <option value="">👤 全部客戶 (待取)</option>
+                </select>
+              </div>
+              <div class="col-auto">
+                <button class="btn btn-outline-secondary btn-sm py-1 px-2 fw-bold" type="button" onclick="clearPickupFilter()">重設篩選</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-body p-0">
+            <div id="pickup-table" class="table-responsive m-0">
+              <div class="text-center p-4 text-muted">資料載入中...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="floating-bottom-bar d-flex justify-content-between align-items-center">
+          <button class="btn btn-primary px-4 py-2 fw-bold shadow" onclick="markAsPickedUp()">
+            🎉 取貨完成
+          </button>
+          <span class="text-muted small fw-bold text-end" style="font-size: 0.8rem;">💡 勾選完成後點擊左側按鈕</span>
+        </div>
+      </div>
+
+      <!-- 區塊 2-2：📢 取貨通知 -->
+      <div id="section-notice" style="display: none;">
+        <div class="card shadow-sm mb-2">
+          <div class="card-body bg-white p-2">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <h6 class="m-0 text-primary fw-bold">📢 取貨通知訊息產生器</h6>
+              <button class="btn btn-outline-primary btn-sm py-0 fw-bold" style="font-size: 0.75rem;" onclick="loadNotificationData(noticeSelectedDate)">
+                🔄 重新整理
+              </button>
+            </div>
+            <hr class="my-1">
+            <div>
+              <span class="text-secondary small fw-bold d-block mb-1" style="font-size: 0.8rem;">📅 依採購日期篩選：</span>
+              <div id="notice-date-buttons-bar" class="date-buttons-container">
+                <span class="text-muted small">載入中...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-body p-2">
+            <div id="notice-container" class="d-flex flex-row overflow-auto gap-2">
+              <div class="text-center p-4 text-muted w-100">載入中...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 區塊 3：訂單資料管理 (僅列出未買) -->
+      <div id="section-orders" style="display: none;">
+        <div class="card shadow-sm mb-2">
+          <div class="card-body bg-white p-2">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="m-0 text-dark fw-bold">📋 訂單資料 (僅列出未買清單)</h6>
+              <span id="orders-sync-status" class="text-muted small" style="font-size: 0.75rem;"></span>
+            </div>
+            <div class="row g-2 align-items-center bg-light p-2 rounded border">
+              <div class="col-auto">
+                <span class="fw-bold small text-secondary">🔍 篩選：</span>
+              </div>
+              <div class="col">
+                <select id="filterOrderUser" class="form-select form-select-sm fw-bold" onchange="renderOrdersTable()">
+                  <option value="">👤 全部客戶 (未買)</option>
+                </select>
+              </div>
+              <div class="col">
+                <select id="filterOrderProduct" class="form-select form-select-sm fw-bold" onchange="renderOrdersTable()">
+                  <option value="">🛍️ 全部商品 (未買)</option>
+                </select>
+              </div>
+              <div class="col-auto">
+                <button class="btn btn-outline-secondary btn-sm py-1 px-2 fw-bold" type="button" onclick="clearOrderFilters()">重設篩選</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-body p-0">
+            <div id="orders-table" class="table-responsive m-0">
+              <div class="text-center p-4 text-muted">資料載入中...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="floating-bottom-bar d-flex justify-content-between align-items-center">
+          <button id="btnAddOrder" class="btn btn-outline-primary px-3 py-2 fw-bold shadow-sm bg-white" onclick="addNewOrderRow()">
+            ➕ 新增一筆
+          </button>
+          <button id="btnSaveOrders" class="btn btn-success px-4 py-2 fw-bold shadow" onclick="saveAllOrdersTable()">
+            💾 修改完成
+          </button>
+        </div>
+      </div>
+
+      <!-- 區塊 4：歷史訂單查詢 -->
+      <div id="section-history" style="display: none;">
+        <div class="card shadow-sm mb-2">
+          <div class="card-body bg-white p-2">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="m-0 text-secondary fw-bold">📜 歷史訂單紀錄</h6>
+              <span id="history-sync-status" class="text-muted small" style="font-size: 0.75rem;"></span>
+            </div>
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+              <input type="text" id="historySearchInput" class="form-control" placeholder="輸入商品代號、客戶或名稱搜尋..." oninput="renderHistoryTable()">
+              <button class="btn btn-outline-secondary" type="button" onclick="clearHistorySearch()">清除</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-body p-0">
+            <div id="history-table" class="table-responsive m-0">
+              <div class="text-center p-4 text-muted">資料載入中...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="floating-bottom-bar d-flex justify-content-between align-items-center">
+          <button class="btn btn-success px-4 py-2 fw-bold shadow" onclick="saveHistoryStatusChanges()">
+            💾 儲存變更
+          </button>
+          <span class="text-muted small fw-bold text-end" style="font-size: 0.8rem;">💡 修改狀態後點擊左側按鈕</span>
+        </div>
+      </div>
+
+      <!-- 區塊 5：商品資訊分頁 -->
+      <div id="section-product-db" style="display: none;">
+        <div class="card shadow-sm mb-2">
+          <div class="card-body bg-white p-2">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="m-0 text-info text-dark fw-bold">🏷️ 商品資訊</h6>
+              <span id="product-sync-status" class="text-muted small" style="font-size: 0.75rem;"></span>
+            </div>
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+              <input type="text" id="productSearchInput" class="form-control" placeholder="輸入代號或名稱快速搜尋..." oninput="renderProductDbTable()">
+              <button class="btn btn-outline-secondary" type="button" onclick="clearProductSearch()">清除</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-body p-0">
+            <div id="product-db-table" class="table-responsive m-0">
+              <div class="text-center p-4 text-muted">資料載入中...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="floating-bottom-bar d-flex justify-content-between align-items-center">
+          <button class="btn btn-outline-primary px-3 py-2 fw-bold shadow-sm bg-white" onclick="addNewProductRow()">
+            ➕ 新增商品
+          </button>
+          <button id="btnSaveProducts" class="btn btn-success px-4 py-2 fw-bold shadow" onclick="saveAllProductsTable()">
+            💾 儲存變更
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      let globalAllRows = [];
+      let globalProducts = [];
+      let availableDates = [];
+      let selectedDate = '';
+      let noticeSelectedDate = ''; 
+      let currentTab = 'purchase';
+      let currentGroupedRows = [];
+
+      const sourceOptions = ['LINE', 'LINE(私)', 'FB', 'IG', 'Threads'];
+      const categoryOptions = ['3C家電', '生活用品', '零食', '箱型飲品', '保健生活', '麵包', '熟食', '即飲沖泡', '冷藏', '冷凍', '乾貨'];
+      const statusOptions = ['未買', '已購買', '未取', '已取', '缺貨'];
+
+      function initApp() {
+        loadData();
+        loadProductData();
+      }
+
+      function switchTab(tab) {
+        currentTab = tab;
+        const btnPurchase = document.getElementById('tab-purchase');
+        const btnOnline = document.getElementById('tab-online');
+        const btnPickup = document.getElementById('tab-pickup');
+        const btnNotice = document.getElementById('tab-notice');
+        const btnOrders = document.getElementById('tab-orders');
+        const btnHistory = document.getElementById('tab-history');
+        const btnProductDb = document.getElementById('tab-product-db');
+        
+        const secPurchase = document.getElementById('section-purchase');
+        const secOnline = document.getElementById('section-online');
+        const secPickup = document.getElementById('section-pickup');
+        const secNotice = document.getElementById('section-notice');
+        const secOrders = document.getElementById('section-orders');
+        const secHistory = document.getElementById('section-history');
+        const secProductDb = document.getElementById('section-product-db');
+
+        btnPurchase.className = 'nav-link fw-bold px-3 ' + (tab === 'purchase' ? 'active' : 'text-secondary');
+        btnOnline.className = 'nav-link fw-bold px-3 ' + (tab === 'online' ? 'active' : 'text-secondary');
+        btnPickup.className = 'nav-link fw-bold px-3 ' + (tab === 'pickup' ? 'active' : 'text-secondary');
+        btnNotice.className = 'nav-link fw-bold px-3 ' + (tab === 'notice' ? 'active' : 'text-secondary');
+        btnOrders.className = 'nav-link fw-bold px-3 ' + (tab === 'orders' ? 'active' : 'text-secondary');
+        btnHistory.className = 'nav-link fw-bold px-3 ' + (tab === 'history' ? 'active' : 'text-secondary');
+        btnProductDb.className = 'nav-link fw-bold px-3 ' + (tab === 'product-db' ? 'active' : 'text-secondary');
+
+        secPurchase.style.display = tab === 'purchase' ? 'block' : 'none';
+        secOnline.style.display = tab === 'online' ? 'block' : 'none';
+        secPickup.style.display = tab === 'pickup' ? 'block' : 'none';
+        secNotice.style.display = tab === 'notice' ? 'block' : 'none';
+        secOrders.style.display = tab === 'orders' ? 'block' : 'none';
+        secHistory.style.display = tab === 'history' ? 'block' : 'none';
+        secProductDb.style.display = tab === 'product-db' ? 'block' : 'none';
+
+        if (tab === 'purchase') {
+          renderDateButtons();
+          renderTableForSelectedDate();
+        } else if (tab === 'online') {
+          renderTableForSelectedDate();
+        }
+        if (tab === 'pickup') renderPickupTable();
+        if (tab === 'notice') {
+          renderNoticeDateButtons();
+          loadNotificationData(noticeSelectedDate);
+        }
+        if (tab === 'orders') renderOrdersTable();
+        if (tab === 'history') renderHistoryTable();
+        if (tab === 'product-db') renderProductDbTable();
+      }
+
+      function formatMonthDay(dateStr) {
+        if (!dateStr) return '';
+        let parts = dateStr.split(/[-/]/);
+        if (parts.length >= 3) {
+          return parts[1] + '/' + parts[2];
+        }
+        if (parts.length === 2) {
+          return parts[0] + '/' + parts[1];
+        }
+        return dateStr;
+      }
+
+      function loadData() {
+        google.script.run.withSuccessHandler(res => {
+          let rawRows = res.rows || [];
+          availableDates = res.dates || [];
+
+          globalAllRows = rawRows.map(row => {
+            let boolChecked = (row.orderStatus === '已購買');
+            let pickupChecked = (row.orderStatus === '已取');
+            return { ...row, checked: boolChecked, pickupChecked: pickupChecked };
+          });
+
+          if (availableDates.length > 0) {
+            if (!selectedDate || !availableDates.includes(selectedDate)) {
+              selectedDate = availableDates[0];
+            }
+            renderDateButtons();
+          }
+
+          if (currentTab === 'purchase' || currentTab === 'online') renderTableForSelectedDate();
+          else if (currentTab === 'pickup') renderPickupTable();
+          else if (currentTab === 'notice') {
+            renderNoticeDateButtons();
+            loadNotificationData(noticeSelectedDate);
+          }
+          else if (currentTab === 'orders') renderOrdersTable();
+          else if (currentTab === 'history') renderHistoryTable();
+        }).getPurchaseData();
+      }
+
+      function loadProductData() {
+        google.script.run.withSuccessHandler(res => {
+          globalProducts = res.products || [];
+          if (currentTab === 'product-db') renderProductDbTable();
+          if (currentTab === 'orders') renderOrdersTable();
+        }).getProductsData();
+      }
+
+      function renderNoticeDateButtons() {
+        let container = document.getElementById('notice-date-buttons-bar');
+        if (!container) return;
+
+        if (!availableDates || availableDates.length === 0) {
+          container.innerHTML = '<span class="text-muted small">目前無採購日期資料</span>';
+          return;
+        }
+
+        if (!noticeSelectedDate || !availableDates.includes(noticeSelectedDate)) {
+          noticeSelectedDate = availableDates[0];
+        }
+
+        let html = '';
+        availableDates.forEach(d => {
+          let displayDate = formatMonthDay(d);
+          let isActive = (d === noticeSelectedDate);
+          let btnClass = isActive ? 'btn btn-primary date-btn shadow-sm' : 'btn btn-outline-secondary date-btn';
+          html += `<button type="button" class="${btnClass}" onclick="selectNoticeDate('${d}')">${displayDate}</button>`;
+        });
+        
+        container.innerHTML = html;
+      }
+
+      function selectNoticeDate(dateStr) {
+        noticeSelectedDate = dateStr;
+        renderNoticeDateButtons();
+        loadNotificationData(noticeSelectedDate);
+      }
+
+      function loadNotificationData(targetDate) {
+        let container = document.getElementById('notice-container');
+        container.innerHTML = '<div class="text-center p-4 text-muted w-100">資料產出中...</div>';
+
+        google.script.run.withSuccessHandler(res => {
+          if (!res.success) {
+            container.innerHTML = '<div class="text-center p-4 text-danger w-100">載入失敗！</div>';
+            return;
+          }
+
+          let channelData = res.data || {};
+          let targetChannels = ['LINE', 'LINE(私)', 'IG', 'FB', 'Threads'];
+          let html = '';
+
+          targetChannels.forEach(ch => {
+            let usersMap = channelData[ch] || {};
+            let userKeys = Object.keys(usersMap);
+
+            html += `<div class="notice-channel-col">
+              <div class="d-flex justify-content-between align-items-center bg-dark text-white p-2 mb-2 rounded">
+                <span class="fw-bold">${ch}</span>
+                ${userKeys.length > 0 ? `<button type="button" class="btn btn-outline-light btn-sm py-0 px-2" style="font-size: 0.75rem;" onclick="copyColumnNotices(this)">📋 複製 ${ch} 全部</button>` : ''}
+              </div>`;
+
+            if (userKeys.length === 0) {
+              html += `<div class="notice-card text-muted text-center py-4">無 ${ch} 待取訂單</div>`;
+            } else {
+              userKeys.forEach(userKey => {
+                let uData = usersMap[userKey];
+                let headerPrefix = '';
+                if (ch === 'FB') headerPrefix = '📍 (FB) ';
+                else if (ch === 'LINE' || ch === 'LINE(私)' || ch === 'IG' || ch === 'Threads') headerPrefix = '@';
+
+                let headerLine = `${headerPrefix}${uData.userName}`;
+                let itemLines = [];
+
+                uData.items.forEach(it => {
+                  if (it.isOutOfStock || it.orderStatus === '缺貨') {
+                    itemLines.push(`⚠️ ${it.name} ${it.qty}項 (缺貨)`);
+                  } else {
+                    itemLines.push(`🔹 ${it.name} ${it.qty}項 $${it.subtotal}`);
+                  }
+                });
+
+                let totalAmount = uData.totalSubtotal + uData.totalFee;
+                let summaryLine = `💰 商品金額 $${uData.totalSubtotal} + 代購費 $${uData.totalFee}\n🛒 總金額 $${totalAmount}`;
+
+                let fullText = `${headerLine}\n${itemLines.join('\n')}\n${summaryLine}`;
+
+                html += `<div class="notice-card shadow-sm position-relative">
+                  <button type="button" class="btn btn-outline-secondary btn-sm position-absolute top-0 end-0 m-1 px-2 py-0" style="font-size: 0.7rem;" onclick="copyNoticeText(this)">📋 複製</button>
+                  <div class="notice-text-content">${escapeHtml(fullText)}</div>
+                </div>`;
+              });
+            }
+
+            html += `</div>`;
+          });
+
+          container.innerHTML = html;
+        }).getNotificationData(targetDate || '');
+      }
+
+      function escapeHtml(str) {
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+      }
+
+      function copyNoticeText(btn) {
+        let card = btn.closest('.notice-card');
+        let text = card.querySelector('.notice-text-content').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          let originalText = btn.innerText;
+          btn.innerText = '✅ 已複製';
+          btn.classList.replace('btn-outline-secondary', 'btn-success');
+          setTimeout(() => {
+            btn.innerText = originalText;
+            btn.classList.replace('btn-success', 'btn-outline-secondary');
+          }, 1500);
+        });
+      }
+
+      function copyColumnNotices(btn) {
+        let col = btn.closest('.notice-channel-col');
+        let cards = col.querySelectorAll('.notice-text-content');
+        let allTexts = [];
+        cards.forEach(c => {
+          allTexts.push(c.innerText);
+        });
+        let combinedText = allTexts.join('\n\n--------------------\n\n');
+
+        navigator.clipboard.writeText(combinedText).then(() => {
+          let originalText = btn.innerText;
+          btn.innerText = '✅ 已全部複製';
+          btn.classList.replace('btn-outline-light', 'btn-success');
+          setTimeout(() => {
+            btn.innerText = originalText;
+            btn.classList.replace('btn-success', 'btn-outline-light');
+          }, 1500);
+        });
+      }
+
+      function renderDateButtons() {
+        let container = document.getElementById('date-buttons-bar');
+        if (!container) return;
+
+        let html = '';
+        availableDates.forEach(d => {
+          let displayDate = formatMonthDay(d);
+          let isActive = (d === selectedDate);
+          let btnClass = isActive ? 'btn btn-primary date-btn shadow-sm' : 'btn btn-outline-secondary date-btn';
+
+          html += `<button type="button" class="${btnClass}" onclick="selectDate('${d}')">${displayDate}</button>`;
+        });
+
+        container.innerHTML = html;
+      }
+
+      function selectDate(dateStr) {
+        selectedDate = dateStr;
+        renderDateButtons();
+        renderTableForSelectedDate();
+      }
+
+      function getChannelColorClass(channel) {
+        if (channel === 'LINE') return 'bg-channel-line';
+        if (channel === 'LINE(私)') return 'bg-channel-line-private';
+        if (channel === 'FB') return 'bg-channel-fb';
+        if (channel === 'IG') return 'bg-channel-ig';
+        if (channel === 'Threads') return 'bg-channel-threads';
+        return '';
+      }
+
+      function getCategoryBadgeClass(category) {
+        if (category === '3C家電') return 'badge-3c';
+        if (category === '生活用品') return 'badge-life';
+        if (category === '零食') return 'badge-snack';
+        if (category === '箱型飲品') return 'badge-drink-box';
+        if (category === '保健生活') return 'badge-health';
+        if (category === '麵包') return 'badge-bakery';
+        if (category === '熟食') return 'badge-cooked';
+        if (category === '即飲沖泡') return 'badge-instant';
+        if (category === '冷藏') return 'badge-chilled';
+        if (category === '冷凍') return 'badge-frozen';
+        if (category === '乾貨') return 'badge-dry';
+        return 'badge-default';
+      }
+
+      function renderTableForSelectedDate() {
+        let isOnlineMode = (currentTab === 'online');
+        let tableContainerId = isOnlineMode ? 'online-purchase-table' : 'purchase-table';
+        let expectedCountId = isOnlineMode ? 'online-expected-count' : 'expected-count';
+        let actualCountId = isOnlineMode ? 'online-actual-count' : 'actual-count';
+        let categorySummaryBarId = isOnlineMode ? 'online-category-summary-bar' : 'category-summary-bar';
+
+        let formattedSelectedDate = formatMonthDay(selectedDate);
+
+        let filteredRows = globalAllRows.filter(row => {
+          let rowPurchaseDate = formatMonthDay(row.purchaseDate || row.date);
+          let isStatusMatch = (row.orderStatus === '未買' || row.orderStatus === '已購買' || row.orderStatus === '缺貨');
+          if (!isStatusMatch) return false;
+          
+          if (isOnlineMode) {
+            return row.shippingChannel === '線上代購';
+          } else {
+            return (rowPurchaseDate === formattedSelectedDate) && (row.shippingChannel !== '線上代購');
+          }
+        });
+
+        if (filteredRows.length === 0) {
+          document.getElementById(tableContainerId).innerHTML = `<div class="text-center p-4 text-muted">目前無${isOnlineMode ? '線上代購' : '現場採購'}項目 (${formattedSelectedDate})。</div>`;
+          document.getElementById(expectedCountId).innerText = 0;
+          document.getElementById(actualCountId).innerText = 0;
+          document.getElementById(categorySummaryBarId).innerHTML = '<span class="text-muted small">無分類資料</span>';
+          currentGroupedRows = [];
+          return;
+        }
+
+        let totalExpected = filteredRows.reduce((sum, row) => sum + Number(row.qty || 0), 0);
+        document.getElementById(expectedCountId).innerText = totalExpected;
+
+        let categoryMap = {};
+        filteredRows.forEach(row => {
+          let cat = row.category || '未分類';
+          let qty = Number(row.qty || 0);
+          categoryMap[cat] = (categoryMap[cat] || 0) + qty;
+        });
+
+        let catHtml = '';
+        categoryOptions.forEach(cat => {
+          if (categoryMap[cat]) {
+            catHtml += `<div class="category-card">
+              <span class="text-muted d-block" style="font-size: 0.75rem;">${cat}</span>
+              <span class="fw-bold text-dark" style="font-size: 1rem;">${categoryMap[cat]} 件</span>
+            </div>`;
+          }
+        });
+        document.getElementById(categorySummaryBarId).innerHTML = catHtml;
+
+        let productGroupMap = {};
+        filteredRows.forEach(row => {
+          let key = (row.code ? row.code.trim().toLowerCase() : '') + '|' + (row.name ? row.name.trim() : '');
+          if (!productGroupMap[key]) {
+            productGroupMap[key] = {
+              code: row.code,
+              name: row.name,
+              category: row.category,
+              price: row.price,
+              totalQty: 0,
+              subRows: [],
+              userQtyMap: {},
+              isOutOfStock: (row.orderStatus === '缺貨')
+            };
+          }
+          let group = productGroupMap[key];
+          let q = Number(row.qty || 0);
+          group.totalQty += q;
+          group.subRows.push(row);
+
+          let userKey = row.user || '未具名';
+          group.userQtyMap[userKey] = (group.userQtyMap[userKey] || 0) + q;
+        });
+
+        let groupedArray = Object.values(productGroupMap);
+
+        groupedArray.sort((a, b) => {
+          let indexA = categoryOptions.indexOf(a.category);
+          let indexB = categoryOptions.indexOf(b.category);
+          if (indexA === -1) indexA = 999;
+          if (indexB === -1) indexB = 999;
+
+          if (indexA !== indexB) {
+            return indexA - indexB;
+          }
+          let nameA = (a.name || '').toString();
+          let nameB = (b.name || '').toString();
+          return nameA.localeCompare(nameB, 'zh-Hant');
+        });
+
+        currentGroupedRows = groupedArray;
+
+        let html = '<table class="table table-striped table-hover mb-0 align-middle text-center purchase-large-table">';
+        html += '<thead class="table-dark"><tr>';
+        html += '<th style="width: 7%;">勾選</th>';
+        html += '<th style="width: 7%;">缺貨</th>';
+        html += '<th style="width: 7%;">數量</th>';
+        html += '<th style="width: 14%;">單價</th>';
+        html += '<th style="width: 16%;">商品代號</th>';
+        html += '<th style="width: 23%; text-align: left;">商品名稱</th>';
+        html += '<th style="width: 8%;">分類</th>';
+        html += '<th style="width: 18%; text-align: left;">訂購人</th>';
+        html += '</tr></thead><tbody>';
+
+        currentGroupedRows.forEach((group, groupIdx) => {
+          let allChecked = group.subRows.every(r => r.checked);
+          let isCheckedStr = allChecked ? 'checked' : '';
+          let isOosStr = group.isOutOfStock ? 'checked' : '';
+          let category = group.category || '';
+          let badgeClass = getCategoryBadgeClass(category);
+
+          let userParts = [];
+          for (let u in group.userQtyMap) {
+            userParts.push(`${u} [${group.userQtyMap[u]}]`);
+          }
+          let userDisplayStr = userParts.join('、');
+          let cleanCode = group.code ? group.code.replace(/^#+/, '') : '';
+
+          html += `<tr id="group-row-${groupIdx}" class="${allChecked ? 'table-success text-decoration-line-through' : (group.isOutOfStock ? 'table-warning' : '')}">
+            <td><input type="checkbox" id="group-chk-${groupIdx}" class="form-check-input" ${isCheckedStr} onchange="toggleGroupRowUI(${groupIdx})"></td>
+            <td><input type="checkbox" id="group-oos-${groupIdx}" class="form-check-input bg-warning border-dark" ${isOosStr} onchange="toggleGroupOosUI(${groupIdx})"></td>
+            <td class="fw-bold text-primary">${group.totalQty}</td>
+            <td><input type="number" class="spreadsheet-input text-center text-danger fw-bold" value="${group.price || 0}" min="0" onchange="updateGroupPrice(${groupIdx}, this.value)"></td>
+            <td><input type="text" class="spreadsheet-input text-center text-primary fw-bold" value="${cleanCode}" placeholder="代號" oninput="updateGroupCode(${groupIdx}, this)"></td>
+            <td class="text-start fw-bold text-dark">${group.name || ''}</td>
+            <td><span class="badge ${badgeClass}" style="font-size: 0.85rem;">${category}</span></td>
+            <td class="text-start text-secondary fw-bold" style="font-size: 1rem;">${userDisplayStr}</td>
+          </tr>`;
+        });
+
+        html += '</tbody></table>';
+        document.getElementById(tableContainerId).innerHTML = html;
+        
+        calculateActualCount();
+      }
+
+      function updateGroupPrice(groupIdx, newPrice) {
+        let group = currentGroupedRows[groupIdx];
+        if (!group) return;
+        let priceNum = Number(newPrice) || 0;
+        group.price = priceNum;
+
+        let updates = [];
+        group.subRows.forEach(row => {
+          row.price = priceNum;
+          updates.push({ rowIndex: row.originalRowIndex, price: priceNum });
+        });
+
+        autoSaveGroupChanges(updates);
+      }
+
+      function updateGroupCode(groupIdx, inputEl) {
+        let group = currentGroupedRows[groupIdx];
+        if (!group) return;
+        let codeVal = inputEl.value.trim();
+        group.code = codeVal;
+
+        let foundProduct = globalProducts.find(p => p.code.toLowerCase() === codeVal.toLowerCase());
+        if (foundProduct) {
+          group.name = foundProduct.name;
+          group.category = foundProduct.category;
+          group.price = foundProduct.price;
+          renderTableForSelectedDate(); 
+        }
+
+        let updates = [];
+        group.subRows.forEach(row => {
+          row.code = codeVal;
+          if (foundProduct) {
+            row.name = foundProduct.name;
+            row.category = foundProduct.category;
+            row.price = foundProduct.price;
+          }
+          updates.push({ rowIndex: row.originalRowIndex, code: codeVal, name: row.name, category: row.category, price: row.price });
+        });
+
+        autoSaveGroupChanges(updates);
+      }
+
+      function autoSaveGroupChanges(updates) {
+        let statusElId = (currentTab === 'online') ? 'online-sync-status' : 'sync-status';
+        let statusEl = document.getElementById(statusElId);
+        statusEl.innerText = "⏳ 儲存中...";
+
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.success) {
+              statusEl.innerText = "✨ 已自動儲存";
+              setTimeout(() => { statusEl.innerText = ""; }, 1500);
+            } else {
+              statusEl.innerText = "❌ 儲存失敗";
+            }
+          })
+          .batchUpdateRowStatus(updates);
+      }
+
+      function toggleGroupRowUI(groupIdx) {
+        let group = currentGroupedRows[groupIdx];
+        if (!group) return;
+
+        let checkbox = document.getElementById(`group-chk-${groupIdx}`);
+        let isChecked = checkbox.checked;
+
+        if (isChecked && group.isOutOfStock) {
+          group.isOutOfStock = false;
+          let oosChk = document.getElementById(`group-oos-${groupIdx}`);
+          if (oosChk) oosChk.checked = false;
+        }
+
+        let rowEl = document.getElementById(`group-row-${groupIdx}`);
+        if (isChecked) {
+          rowEl.className = 'table-success text-decoration-line-through';
+        } else {
+          rowEl.className = '';
+        }
+
+        let targetStatus = isChecked ? '已購買' : '未買';
+        let updates = [];
+
+        group.subRows.forEach(row => {
+          row.checked = isChecked; // 💡 確保 subRow 的 checked 屬性同步更新
+          row.orderStatus = targetStatus;
+          updates.push({ rowIndex: row.originalRowIndex, targetStatus: targetStatus });
+        });
+
+        calculateActualCount();
+        autoSaveGroupChanges(updates);
+      }
+
+      function toggleGroupOosUI(groupIdx) {
+        let group = currentGroupedRows[groupIdx];
+        if (!group) return;
+
+        let oosChk = document.getElementById(`group-oos-${groupIdx}`);
+        group.isOutOfStock = oosChk.checked;
+
+        if (group.isOutOfStock) {
+          group.subRows.forEach(r => {
+            r.checked = false;
+            r.orderStatus = '缺貨';
+          });
+          let mainChk = document.getElementById(`group-chk-${groupIdx}`);
+          if (mainChk) mainChk.checked = false;
+        } else {
+          group.subRows.forEach(r => {
+            r.orderStatus = '未買';
+          });
+        }
+
+        let rowEl = document.getElementById(`group-row-${groupIdx}`);
+        if (group.isOutOfStock) {
+          rowEl.className = 'table-warning';
+        } else {
+          rowEl.className = '';
+        }
+
+        let updates = [];
+        group.subRows.forEach(row => {
+          updates.push({
+            rowIndex: row.originalRowIndex,
+            targetStatus: row.orderStatus
+          });
+        });
+
+        calculateActualCount();
+        autoSaveGroupChanges(updates);
+      }
+
+      function calculateActualCount() {
+        let isOnlineMode = (currentTab === 'online');
+        let actualCountId = isOnlineMode ? 'online-actual-count' : 'actual-count';
+
+        let filteredRows = globalAllRows.filter(row => {
+          let isStatusMatch = isOnlineMode ? (row.orderStatus === '未買' || row.orderStatus === '已購買') : (row.date === selectedDate && (row.orderStatus === '未買' || row.orderStatus === '已購買'));
+          if (!isStatusMatch) return false;
+          return isOnlineMode ? (row.shippingChannel === '線上代購') : (row.shippingChannel !== '線上代購');
+        });
+
+        let actual = filteredRows.filter(r => r.orderStatus === '已購買').reduce((sum, r) => sum + Number(r.qty || 0), 0);
+        document.getElementById(actualCountId).innerText = actual;
+      }
+
+      // 💡 直接檢查畫面上所有群組勾選框，確保 100% 抓取勾選項目
+      function markAsPurchasedUnpicked() {
+        let isOnlineMode = (currentTab === 'online');
+        let purchasedUpdates = [];
+        let oosUpdates = [];
+
+        currentGroupedRows.forEach((group, groupIdx) => {
+          let chkEl = document.getElementById(`group-chk-${groupIdx}`);
+          let oosEl = document.getElementById(`group-oos-${groupIdx}`);
+          
+          let isChecked = chkEl ? chkEl.checked : false;
+          let isOos = oosEl ? oosEl.checked : group.isOutOfStock;
+
+          if (isOos) {
+            group.subRows.forEach(row => {
+              oosUpdates.push({
+                rowIndex: row.originalRowIndex,
+                isOutofStockToUnbought: true
+              });
+            });
+          } else if (isChecked) {
+            group.subRows.forEach(row => {
+              row.orderStatus = '未取';
+              purchasedUpdates.push({
+                rowIndex: row.originalRowIndex,
+                targetStatus: '未取'
+              });
+            });
+          }
+        });
+
+        let totalCount = purchasedUpdates.length + oosUpdates.length;
+        if (totalCount === 0) {
+          alert('請先勾選已完成購買的商品，或是勾選缺貨的商品！');
+          return;
+        }
+
+        let msg = `確認處理：\n`;
+        if (purchasedUpdates.length > 0) msg += `✅ ${isOnlineMode ? '訂購完成' : '購買完成'}（轉入未取）：${purchasedUpdates.length} 筆\n`;
+        if (oosUpdates.length > 0) msg += `⚠️ 缺貨（遞延至下個採購日並改回未買）：${oosUpdates.length} 筆\n`;
+
+        if (!confirm(msg)) return;
+
+        let updates = purchasedUpdates.concat(oosUpdates);
+        let statusElId = isOnlineMode ? 'online-sync-status' : 'sync-status';
+        let statusEl = document.getElementById(statusElId);
+        statusEl.innerText = "⏳ 處理中...";
+
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.success) {
+              statusEl.innerText = "✨ 處理成功";
+              loadData();
+            } else {
+              statusEl.innerText = "❌ 處理失敗";
+            }
+          })
+          .batchUpdateRowStatus(updates);
+      }
+
+      function renderPickupTable() {
+        let pickupRows = globalAllRows.filter(row => row.orderStatus === '未取');
+
+        let unpickedUsers = [...new Set(pickupRows.map(r => r.user).filter(Boolean))].sort();
+        let userSelectEl = document.getElementById('filterPickupUser');
+        let currentSelectedUser = userSelectEl ? userSelectEl.value : '';
+
+        if (userSelectEl) {
+          let uHtml = '<option value="">👤 全部客戶 (待取)</option>';
+          unpickedUsers.forEach(u => {
+            uHtml += `<option value="${u}" ${currentSelectedUser === u ? 'selected' : ''}>${u}</option>`;
+          });
+          userSelectEl.innerHTML = uHtml;
+        }
+
+        if (currentSelectedUser) {
+          pickupRows = pickupRows.filter(r => r.user === currentSelectedUser);
+        }
+
+        if (pickupRows.length === 0) {
+          document.getElementById('pickup-table').innerHTML = '<div class="text-center p-4 text-muted fs-5">目前沒有符合條件的待取項目。</div>';
+          return;
+        }
+
+        let groupMap = {};
+        pickupRows.forEach(row => {
+          let user = row.user || '未具名';
+          if (!groupMap[user]) {
+            groupMap[user] = { rows: [], totalQty: 0, activeAmount: 0 };
+          }
+          groupMap[user].rows.push(row);
+          let rowAmt = Number(row.totalAmount || 0);
+          groupMap[user].totalQty += Number(row.qty || 0);
+
+          if (row.payStatus !== '已轉帳') {
+            groupMap[user].activeAmount += rowAmt;
+          }
+        });
+
+        let html = '<table class="table table-bordered table-hover mb-0 align-middle text-center pickup-large-table">';
+        html += '<thead class="table-dark"><tr>';
+        html += '<th style="width: 8%;">取貨勾選</th>';
+        html += '<th style="width: 8%;">已轉帳</th>';
+        html += '<th style="width: 44%; text-align: left;">細分商品名稱</th>';
+        html += '<th style="width: 20%;">數量</th>';
+        html += '<th style="width: 20%;">金額</th>';
+        html += '</tr></thead><tbody>';
+
+        for (let user in groupMap) {
+          let group = groupMap[user];
+          let groupAllChecked = group.rows.every(r => r.pickupChecked);
+          let groupAllPaid = group.rows.every(r => r.payStatus === '已轉帳');
+
+          html += `<tr class="customer-group-header bg-secondary-subtle" id="group-header-${user}">
+            <td><input type="checkbox" class="form-check-input" ${groupAllChecked ? 'checked' : ''} onchange="toggleCustomerGroup('${user}', this.checked)"></td>
+            <td><input type="checkbox" class="form-check-input" ${groupAllPaid ? 'checked' : ''} onchange="toggleCustomerGroupPay('${user}', this.checked)"></td>
+            <td colspan="3" class="text-start text-dark py-2 ps-2">
+              <span class="fw-bold me-2 fs-5">👤 ${user}</span>
+              <span class="badge bg-dark me-1 fs-6">總計: ${group.totalQty} 件</span>
+              <span class="badge bg-danger fs-6">總金額: $<span class="group-total-amount">${group.activeAmount.toLocaleString()}</span></span>
+            </td>
+          </tr>`;
+
+          group.rows.forEach(row => {
+            let globalIndex = globalAllRows.findIndex(r => r.originalRowIndex === row.originalRowIndex);
+            let isCheckedStr = row.pickupChecked ? 'checked' : '';
+            let isPaidStr = (row.payStatus === '已轉帳') ? 'checked' : '';
+            let cleanCode = row.code ? row.code.replace(/^#+/, '') : '';
+
+            html += `<tr id="pickup-row-${globalIndex}" class="${row.pickupChecked ? 'table-success text-decoration-line-through' : ''}">
+              <td><input type="checkbox" id="pickup-chk-${globalIndex}" class="form-check-input" ${isCheckedStr} onchange="togglePickupUI(${globalIndex})"></td>
+              <td><input type="checkbox" id="pickup-pay-${globalIndex}" class="form-check-input pay-checkbox" ${isPaidStr} onchange="togglePickupPayUI(${globalIndex})"></td>
+              <td class="text-start fw-bold text-dark ps-2">
+                <span class="text-secondary me-1">└</span> ${row.name || ''} 
+                ${cleanCode ? `<span class="badge bg-light text-dark border ms-1 fs-6">#${cleanCode}</span>` : ''}
+                ${row.shippingChannel === '線上代購' ? '<span class="badge bg-info text-dark ms-1 fs-6">線上</span>' : ''}
+              </td>
+              <td class="fw-bold text-primary fs-5">${row.qty || 0} 件</td>
+              <td class="fw-bold text-danger fs-5">$${Number(row.totalAmount || 0).toLocaleString()}</td>
+            </tr>`;
+          });
+        }
+
+        html += '</tbody></table>';
+        document.getElementById('pickup-table').innerHTML = html;
+      }
+
+      function clearPickupFilter() {
+        let userSelectEl = document.getElementById('filterPickupUser');
+        if (userSelectEl) userSelectEl.value = '';
+        renderPickupTable();
+      }
+
+      function togglePickupUI(globalIndex) {
+        let row = globalAllRows[globalIndex];
+        if (!row) return;
+        let checkbox = document.getElementById(`pickup-chk-${globalIndex}`);
+        row.pickupChecked = checkbox.checked;
+        let rowEl = document.getElementById(`pickup-row-${globalIndex}`);
+        if (checkbox.checked) {
+          rowEl.classList.add('table-success', 'text-decoration-line-through');
+        } else {
+          rowEl.classList.remove('table-success', 'text-decoration-line-through');
+        }
+        
+        autoSavePickupChanges(row);
+      }
+
+      function togglePickupPayUI(globalIndex) {
+        let row = globalAllRows[globalIndex];
+        if (!row) return;
+        let checkbox = document.getElementById(`pickup-pay-${globalIndex}`);
+        row.payStatus = checkbox.checked ? '已轉帳' : '未付款';
+        
+        updateGroupActiveAmount(row.user);
+        autoSavePickupChanges(row);
+      }
+
+      function toggleCustomerGroup(user, isChecked) {
+        let updates = [];
+        globalAllRows.forEach(row => {
+          if (row.orderStatus === '未取' && (row.user || '未具名') === user) {
+            row.pickupChecked = isChecked;
+            let globalIndex = globalAllRows.findIndex(r => r.originalRowIndex === row.originalRowIndex);
+            if (globalIndex !== -1) {
+              let chk = document.getElementById(`pickup-chk-${globalIndex}`);
+              let rowEl = document.getElementById(`pickup-row-${globalIndex}`);
+              if (chk) chk.checked = isChecked;
+              if (rowEl) {
+                if (isChecked) {
+                  rowEl.classList.add('table-success', 'text-decoration-line-through');
+                } else {
+                  rowEl.classList.remove('table-success', 'text-decoration-line-through');
+                }
+              }
+            }
+            updates.push({ 
+              rowIndex: row.originalRowIndex, 
+              targetStatus: row.orderStatus,
+              payStatus: row.payStatus || '未付款'
+            });
+          }
+        });
+        
+        batchAutoSavePickup(updates);
+      }
+
+      function toggleCustomerGroupPay(user, isChecked) {
+        let updates = [];
+        globalAllRows.forEach(row => {
+          if (row.orderStatus === '未取' && (row.user || '未具名') === user) {
+            row.payStatus = isChecked ? '已轉帳' : '未付款';
+            let globalIndex = globalAllRows.findIndex(r => r.originalRowIndex === row.originalRowIndex);
+            if (globalIndex !== -1) {
+              let chk = document.getElementById(`pickup-pay-${globalIndex}`);
+              if (chk) chk.checked = isChecked;
+            }
+            updates.push({ 
+              rowIndex: row.originalRowIndex, 
+              targetStatus: row.orderStatus,
+              payStatus: row.payStatus
+            });
+          }
+        });
+
+        updateGroupActiveAmount(user);
+        batchAutoSavePickup(updates);
+      }
+
+      function updateGroupActiveAmount(user) {
+        let userRows = globalAllRows.filter(row => row.orderStatus === '未取' && (row.user || '未具名') === user);
+        let activeSum = userRows.filter(r => r.payStatus !== '已轉帳').reduce((sum, r) => sum + Number(r.totalAmount || 0), 0);
+        
+        let headerRow = document.getElementById(`group-header-${user}`);
+        if (headerRow) {
+          let amountSpan = headerRow.querySelector('.group-total-amount');
+          if (amountSpan) {
+            amountSpan.innerText = activeSum.toLocaleString();
+          }
+        }
+      }
+
+      function autoSavePickupChanges(row) {
+        let statusEl = document.getElementById('pickup-sync-status');
+        statusEl.innerText = "⏳ 自動儲存中...";
+
+        let updateData = [{
+          rowIndex: row.originalRowIndex,
+          targetStatus: row.orderStatus,
+          payStatus: row.payStatus || '未付款'
+        }];
+
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.success) {
+              statusEl.innerText = "✨ 已自動儲存";
+              setTimeout(() => { statusEl.innerText = ""; }, 1500);
+            } else {
+              statusEl.innerText = "❌ 儲存失敗";
+            }
+          })
+          .batchUpdateRowStatus(updateData);
+      }
+
+      function batchAutoSavePickup(updates) {
+        let statusEl = document.getElementById('pickup-sync-status');
+        statusEl.innerText = "⏳ 批次自動儲存中...";
+
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.success) {
+              statusEl.innerText = "✨ 已自動儲存";
+              setTimeout(() => { statusEl.innerText = ""; }, 1500);
+            } else {
+              statusEl.innerText = "❌ 儲存失敗";
+            }
+          })
+          .batchUpdateRowStatus(updates);
+      }
+
+      function markAsPickedUp() {
+        let pickedRows = globalAllRows.filter(row => row.orderStatus === '未取' && row.pickupChecked);
+        if (pickedRows.length === 0) {
+          alert('請先勾選已完成取貨的項目！');
+          return;
+        }
+
+        if (!confirm(`確定將已勾選的 ${pickedRows.length} 筆項目設為「已取」完成嗎？`)) return;
+
+        let updates = [];
+        pickedRows.forEach(row => {
+          row.orderStatus = '已取';
+          let currentPayStatus = row.payStatus || '已轉帳';
+          updates.push({ 
+            rowIndex: row.originalRowIndex, 
+            targetStatus: '已取',
+            payStatus: currentPayStatus
+          });
+        });
+
+        let statusEl = document.getElementById('pickup-sync-status');
+        statusEl.innerText = "⏳ 儲存中...";
+
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.success) {
+              statusEl.innerText = "✨ 儲存成功";
+              loadData();
+            } else {
+              statusEl.innerText = "❌ 儲存失敗";
+            }
+          })
+          .batchUpdateRowStatus(updates);
+      }
+
+      function renderOrdersTable() {
+        let unboughtRows = globalAllRows.filter(row => row.orderStatus === '未買');
+
+        let unboughtUsers = [...new Set(unboughtRows.map(r => r.user).filter(Boolean))].sort();
+        let unboughtProducts = [...new Set(unboughtRows.map(r => r.name).filter(Boolean))].sort();
+
+        let userSelectEl = document.getElementById('filterOrderUser');
+        let productSelectEl = document.getElementById('filterOrderProduct');
+
+        let currentSelectedUser = userSelectEl ? userSelectEl.value : '';
+        let currentSelectedProduct = productSelectEl ? productSelectEl.value : '';
+
+        if (userSelectEl) {
+          let uHtml = '<option value="">👤 全部客戶 (未買)</option>';
+          unboughtUsers.forEach(u => {
+            uHtml += `<option value="${u}" ${currentSelectedUser === u ? 'selected' : ''}>${u}</option>`;
+          });
+          userSelectEl.innerHTML = uHtml;
+        }
+
+        if (productSelectEl) {
+          let pHtml = '<option value="">🛍️ 全部商品 (未買)</option>';
+          unboughtProducts.forEach(p => {
+            pHtml += `<option value="${p}" ${currentSelectedProduct === p ? 'selected' : ''}>${p}</option>`;
+          });
+          productSelectEl.innerHTML = pHtml;
+        }
+
+        if (currentSelectedUser) {
+          unboughtRows = unboughtRows.filter(r => r.user === currentSelectedUser);
+        }
+        if (currentSelectedProduct) {
+          unboughtRows = unboughtRows.filter(r => r.name === currentSelectedProduct);
+        }
+
+        unboughtRows.sort((a, b) => {
+          let pDateA = a.purchaseDate || '';
+          let pDateB = b.purchaseDate || '';
+          if (pDateA !== pDateB) return pDateA.localeCompare(pDateB);
+
+          let chanA = a.channel || '';
+          let chanB = b.channel || '';
+          if (chanA !== chanB) return chanA.localeCompare(chanB, 'zh-Hant');
+
+          let userA = a.user || '';
+          let userB = b.user || '';
+          if (userA !== userB) return userA.localeCompare(userB, 'zh-Hant');
+
+          let nameA = a.name || '';
+          let nameB = b.name || '';
+          return nameA.localeCompare(nameB, 'zh-Hant');
+        });
+
+        let countMap = {};
+        unboughtRows.forEach(row => {
+          let key = `${(row.user||'').trim()}_${(row.name||'').trim()}_${row.qty||''}_${row.orderDate||''}`;
+          countMap[key] = (countMap[key] || 0) + 1;
+        });
+
+        let uniqueUsers = [...new Set(globalAllRows.map(r => r.user).filter(Boolean))].sort();
+        let uniqueProducts = [...new Set(globalProducts.map(p => p.name).filter(Boolean))].sort();
+
+        let userDatalistHtml = '<datalist id="existingUsers">';
+        uniqueUsers.forEach(u => { userDatalistHtml += `<option value="${u}">`; });
+        userDatalistHtml += '</datalist>';
+
+        let productDatalistHtml = '<datalist id="existingProducts">';
+        uniqueProducts.forEach(p => { productDatalistHtml += `<option value="${p}">`; });
+        productDatalistHtml += '</datalist>';
+
+        let html = userDatalistHtml + productDatalistHtml;
+        html += '<table class="table table-bordered table-hover mb-0 align-middle text-center orders-large-table" id="editableOrdersTable">';
+        html += '<thead class="table-dark"><tr>';
+        html += '<th style="min-width: 90px;">訂購日期</th>';
+        html += '<th style="min-width: 90px;">採購日期</th>';
+        html += '<th style="min-width: 100px;">來源管道</th>';
+        html += '<th style="min-width: 110px;">客戶姓名</th>';
+        html += '<th style="min-width: 110px;">商品代號</th>';
+        html += '<th style="min-width: 180px; text-align: left;">商品名稱</th>';
+        html += '<th style="min-width: 120px;">商品分類</th>';
+        html += '<th style="min-width: 70px;">數量</th>';
+        html += '<th style="min-width: 80px;">單價</th>';
+        html += '<th style="min-width: 80px;">代購費</th>';
+        html += '<th style="min-width: 80px;">小計</th>';
+        html += '<th style="min-width: 100px;">應收/應付</th>';
+        html += '<th style="min-width: 80px;">線上</th>';
+        html += '<th style="min-width: 80px;">已轉帳</th>';
+        html += '<th style="min-width: 90px;">操作</th>';
+        html += '</tr></thead><tbody>';
+
+        if (unboughtRows.length === 0) {
+          html += `<tr><td colspan="15" class="text-center p-4 text-muted">目前無符合條件的未買訂單。</td></tr>`;
+        } else {
+          unboughtRows.forEach((row) => {
+            let globalIndex = globalAllRows.findIndex(r => r.originalRowIndex === row.originalRowIndex);
+            let key = `${(row.user||'').trim()}_${(row.name||'').trim()}_${row.qty||''}_${row.orderDate||''}`;
+            let isDuplicate = countMap[key] > 1;
+
+            html += generateOrderRowHtml(row, globalIndex, isDuplicate);
+          });
+        }
+
+        html += '</tbody></table>';
+        document.getElementById('orders-table').innerHTML = html;
+      }
+
+      function clearOrderFilters() {
+        let userSelectEl = document.getElementById('filterOrderUser');
+        let productSelectEl = document.getElementById('filterOrderProduct');
+        if (userSelectEl) userSelectEl.value = '';
+        if (productSelectEl) productSelectEl.value = '';
+        renderOrdersTable();
+      }
+
+      function lookupProductByCode(inputEl) {
+        let codeValue = inputEl.value.trim().toLowerCase();
+        if (!codeValue) return;
+
+        let foundProduct = globalProducts.find(p => p.code.toLowerCase() === codeValue);
+        if (foundProduct) {
+          let tr = inputEl.closest('tr');
+          let nameInput = tr.querySelector('[name="name"]');
+          let categorySelect = tr.querySelector('[name="category"]');
+          let priceInput = tr.querySelector('[name="price"]');
+          
+          if (nameInput) nameInput.value = foundProduct.name;
+          if (categorySelect && foundProduct.category) categorySelect.value = foundProduct.category;
+          if (priceInput) priceInput.value = foundProduct.price;
+
+          recalcRow(inputEl);
+        }
+      }
+
+      function lookupProductByName(inputEl) {
+        let nameValue = inputEl.value.trim().toLowerCase();
+        if (!nameValue) return;
+
+        let foundProduct = globalProducts.find(p => p.name.toLowerCase() === nameValue);
+        if (foundProduct) {
+          let tr = inputEl.closest('tr');
+          let codeInput = tr.querySelector('[name="code"]');
+          let categorySelect = tr.querySelector('[name="category"]');
+          let priceInput = tr.querySelector('[name="price"]');
+          
+          if (codeInput) codeInput.value = foundProduct.code;
+          if (categorySelect && foundProduct.category) categorySelect.value = foundProduct.category;
+          if (priceInput) priceInput.value = foundProduct.price;
+
+          recalcRow(inputEl);
+        }
+      }
+
+      function generateOrderRowHtml(row, indexKey, isDuplicate = false) {
+        let qtyVal = (row.qty !== undefined && row.qty !== null && row.qty !== '') ? row.qty : '';
+        let priceVal = (row.price !== undefined && row.price !== null && row.price !== '') ? row.price : '';
+        let feeVal = (row.fee !== undefined && row.fee !== null && row.fee !== '') ? row.fee : '';
+
+        let subtotal = (qtyVal !== '' && priceVal !== '') ? Math.round(Number(qtyVal) * Number(priceVal)) : '';
+        let totalAmount = (subtotal !== '' ? subtotal : 0) + (feeVal !== '' ? Number(feeVal) : 0);
+
+        let isPaid = (row.payStatus === '已轉帳');
+        let isOnline = (row.shippingChannel === '線上代購');
+
+        let channelClass = getChannelColorClass(row.channel);
+        let channelSelect = `<select class="spreadsheet-input ${channelClass}" name="channel" onchange="updateChannelStyle(this)">`;
+        sourceOptions.forEach(opt => {
+          let selected = (row.channel === opt) ? 'selected' : '';
+          channelSelect += `<option value="${opt}" ${selected}>${opt}</option>`;
+        });
+        channelSelect += `</select>`;
+
+        let categorySelect = `<select class="spreadsheet-input" name="category">`;
+        categoryOptions.forEach(opt => {
+          let selected = (row.category === opt) ? 'selected' : '';
+          categorySelect += `<option value="${opt}" ${selected}>${opt}</option>`;
+        });
+        categorySelect += `</select>`;
+
+        let rowClass = isDuplicate ? 'table-warning' : '';
+        let duplicateBadge = isDuplicate ? `<span class="badge bg-danger me-1" style="font-size: 0.75rem;">⚠️ 重複</span>` : '';
+
+        return `<tr data-index="${indexKey}" data-original-row="${row.originalRowIndex || ''}" class="${rowClass}">
+          <td><input type="text" class="spreadsheet-input text-center" name="orderDate" value="${formatMonthDay(row.orderDate) || ''}" placeholder="MM/DD"></td>
+          <td><input type="text" class="spreadsheet-input text-center" name="purchaseDate" value="${formatMonthDay(row.purchaseDate) || ''}" placeholder="MM/DD"></td>
+          <td>${channelSelect}</td>
+          <td><input type="text" class="spreadsheet-input fw-bold" name="user" value="${row.user || ''}" placeholder="姓名" list="existingUsers"></td>
+          <td><input type="text" class="spreadsheet-input text-center fw-bold text-primary" name="code" value="${row.code || ''}" placeholder="代號" oninput="lookupProductByCode(this)"></td>
+          <td>${duplicateBadge}<input type="text" class="spreadsheet-input fw-bold text-start d-inline-block" style="width: ${isDuplicate ? 'calc(100% - 65px)' : '100%'};" name="name" value="${row.name || ''}" placeholder="商品名稱" list="existingProducts" oninput="lookupProductByName(this)" onchange="lookupProductByName(this)"></td>
+          <td>${categorySelect}</td>
+          <td><input type="number" step="any" class="spreadsheet-input text-center" name="qty" value="${qtyVal}" placeholder="" min="0" oninput="recalcRow(this)"></td>
+          <td><input type="number" class="spreadsheet-input text-center" name="price" value="${priceVal}" placeholder="" min="0" oninput="recalcRow(this)"></td>
+          <td><input type="number" class="spreadsheet-input text-center" name="fee" value="${feeVal}" placeholder="" min="0" oninput="recalcRow(this)"></td>
+          <td class="fw-bold subtotal-cell">${subtotal}</td>
+          <td class="fw-bold text-danger total-cell">${totalAmount}</td>
+          <td><input type="checkbox" class="form-check-input shipping-checkbox" ${isOnline ? 'checked' : ''}></td>
+          <td><input type="checkbox" class="form-check-input pay-checkbox" ${isPaid ? 'checked' : ''} onchange="recalcRow(this)"></td>
+          <td>
+            <button type="button" class="btn btn-outline-success btn-sm py-1 px-1 me-1" title="複製此筆訂單" onclick="duplicateOrderRow(this)"><i class="bi bi-files"></i></button>
+            <button type="button" class="btn btn-outline-danger btn-sm py-1 px-1" title="刪除" onclick="removeOrderRow(this)"><i class="bi bi-trash"></i></button>
+          </td>
+        </tr>`;
+      }
+
+      function updateChannelStyle(selectEl) {
+        selectEl.className = 'spreadsheet-input ' + getChannelColorClass(selectEl.value);
+      }
+
+      function recalcRow(el) {
+        let tr = el.closest('tr');
+        let qtyStr = tr.querySelector('[name="qty"]').value;
+        let priceStr = tr.querySelector('[name="price"]').value;
+        let feeStr = tr.querySelector('[name="fee"]').value;
+
+        let qty = qtyStr !== '' ? Number(qtyStr) : 0;
+        let price = priceStr !== '' ? Number(priceStr) : 0;
+        let fee = feeStr !== '' ? Number(feeStr) : 0;
+
+        let subtotal = (qtyStr !== '' && priceStr !== '') ? Math.round(qty * price) : '';
+        let totalAmount = (subtotal !== '' ? subtotal : 0) + fee;
+
+        tr.querySelector('.subtotal-cell').innerText = subtotal;
+        tr.querySelector('.total-cell').innerText = totalAmount;
+      }
+
+      let isAddingOrder = false;
+      function addNewOrderRow() {
+        if (isAddingOrder) return;
+        isAddingOrder = true;
+        let btn = document.getElementById('btnAddOrder');
+        if (btn) btn.disabled = true;
+
+        let tbody = document.querySelector('#editableOrdersTable tbody');
+        if (!tbody) {
+          renderOrdersTable();
+          tbody = document.querySelector('#editableOrdersTable tbody');
+        }
+        
+        let now = new Date();
+        let month = String(now.getMonth() + 1).padStart(2, '0');
+        let day = String(now.getDate()).padStart(2, '0');
+        let todayStr = month + '/' + day;
+
+        let emptyRow = { 
+          orderDate: todayStr, 
+          purchaseDate: '', 
+          channel: 'LINE', 
+          user: '', 
+          code: '', 
+          name: '', 
+          category: '生活用品', 
+          qty: '', 
+          price: '', 
+          fee: '', 
+          payStatus: '未付款', 
+          shippingChannel: '' 
+        };
+        
+        let tempIndex = 'new_' + Date.now();
+        tbody.insertAdjacentHTML('afterbegin', generateOrderRowHtml(emptyRow, tempIndex, false));
+
+        setTimeout(() => {
+          isAddingOrder = false;
+          if (btn) btn.disabled = false;
+        }, 400);
+      }
+
+      function duplicateOrderRow(btn) {
+        let tr = btn.closest('tr');
+        
+        let orderDate = tr.querySelector('[name="orderDate"]').value;
+        let purchaseDate = tr.querySelector('[name="purchaseDate"]').value;
+        let channel = tr.querySelector('[name="channel"]').value;
+        let code = tr.querySelector('[name="code"]').value;
+        let name = tr.querySelector('[name="name"]').value;
+        let category = tr.querySelector('[name="category"]').value;
+        let qty = tr.querySelector('[name="qty"]').value;
+        let price = tr.querySelector('[name="price"]').value;
+        let fee = tr.querySelector('[name="fee"]').value;
+        let isOnline = tr.querySelector('.shipping-checkbox').checked;
+        let isPaid = tr.querySelector('.pay-checkbox').checked;
+
+        let tbody = document.querySelector('#editableOrdersTable tbody');
+        if (!tbody) return;
+
+        let copiedRow = {
+          orderDate: orderDate,
+          purchaseDate: purchaseDate,
+          channel: channel,
+          user: '', 
+          code: code,
+          name: name,
+          category: category,
+          qty: qty,
+          price: price,
+          fee: fee,
+          shippingChannel: isOnline ? '線上代購' : '',
+          payStatus: isPaid ? '已轉帳' : '未付款',
+          originalRowIndex: '' 
+        };
+
+        let tempIndex = 'copy_' + Date.now();
+        tbody.insertAdjacentHTML('afterbegin', generateOrderRowHtml(copiedRow, tempIndex, false));
+        
+        let statusEl = document.getElementById('orders-sync-status');
+        if (statusEl) {
+          statusEl.innerText = "✨ 已複製商品，請修改新買家姓名";
+          setTimeout(() => { statusEl.innerText = ""; }, 2500);
+        }
+      }
+
+      function removeOrderRow(btn) {
+        let tr = btn.closest('tr');
+        let originalRowIndex = tr.getAttribute('data-original-row');
+
+        if (!originalRowIndex) {
+          // 如果是剛新增還沒存檔的列，直接在畫面上移除
+          tr.remove();
+          return;
+        }
+
+        if (!confirm('確定要從 Google 試算表中永久刪除這筆訂單嗎？')) return;
+        
+        let statusEl = document.getElementById('orders-sync-status');
+        statusEl.innerText = "⏳ 試算表刪除中...";
+
+        // 先把畫面的這一列移除保持流暢
+        tr.remove();
+
+        let payload = {
+          rowIndex: Number(originalRowIndex)
+        };
+
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.success) {
+              statusEl.innerText = "✨ 試算表刪除成功";
+              // 稍微延遲後重新載入，確保試算表刪除動作完全生效
+              setTimeout(loadData, 500);
+            } else {
+              statusEl.innerText = "❌ 刪除失敗: " + res.message;
+              loadData(); // 失敗則還原畫面
+            }
+          })
+          .deleteOrderRow(payload);
+      }
+
+      let isSavingOrders = false;
+      function saveAllOrdersTable() {
+        if (isSavingOrders) return;
+        isSavingOrders = true;
+        let btn = document.getElementById('btnSaveOrders');
+        if (btn) btn.disabled = true;
+
+        let trs = document.querySelectorAll('#editableOrdersTable tbody tr');
+        let rowsData = [];
+
+        trs.forEach(tr => {
+          let originalRowIndex = tr.getAttribute('data-original-row');
+          let orderDate = tr.querySelector('[name="orderDate"]').value;
+          let purchaseDate = tr.querySelector('[name="purchaseDate"]').value;
+          let channel = tr.querySelector('[name="channel"]').value;
+          let user = tr.querySelector('[name="user"]').value;
+          let code = tr.querySelector('[name="code"]').value;
+          let name = tr.querySelector('[name="name"]').value;
+          let category = tr.querySelector('[name="category"]').value;
+          let qty = tr.querySelector('[name="qty"]').value;
+          let price = tr.querySelector('[name="price"]').value;
+          let fee = tr.querySelector('[name="fee"]').value;
+          let shippingChannel = tr.querySelector('.shipping-checkbox').checked ? '線上代購' : '';
+          let payStatus = tr.querySelector('.pay-checkbox').checked ? '已轉帳' : '未付款';
+
+          if (user || name || code) {
+            rowsData.push({
+              originalRowIndex: originalRowIndex ? Number(originalRowIndex) : null,
+              orderDate: orderDate,
+              purchaseDate: purchaseDate,
+              channel: channel,
+              user: user,
+              code: code,
+              name: name,
+              category: category,
+              qty: qty,
+              price: price,
+              fee: fee,
+              shippingChannel: shippingChannel,
+              payStatus: payStatus
+            });
+          }
+        });
+
+        let statusEl = document.getElementById('orders-sync-status');
+        statusEl.innerText = "⏳ 儲存中...";
+
+        google.script.run
+          .withSuccessHandler(res => {
+            isSavingOrders = false;
+            if (btn) btn.disabled = false;
+            if (res.success) {
+              statusEl.innerText = "✨ 儲存成功";
+              loadData();
+            } else {
+              statusEl.innerText = "❌ 儲存失敗: " + res.message;
+            }
+          })
+          .withFailureHandler(err => {
+            isSavingOrders = false;
+            if (btn) btn.disabled = false;
+            statusEl.innerText = "❌ 儲存失敗";
+          })
+          .saveAllOrders(rowsData);
+      }
+
+      function renderHistoryTable() {
+        let keyword = (document.getElementById('historySearchInput').value || '').trim().toLowerCase();
+        let historyRows = globalAllRows;
+
+        if (keyword) {
+          historyRows = historyRows.filter(row => 
+            (row.code && row.code.toLowerCase().includes(keyword)) ||
+            (row.user && row.user.toLowerCase().includes(keyword)) ||
+            (row.name && row.name.toLowerCase().includes(keyword)) ||
+            (row.category && row.category.toLowerCase().includes(keyword)) ||
+            (row.orderStatus && row.orderStatus.toLowerCase().includes(keyword))
+          );
+        }
+
+        if (historyRows.length === 0) {
+          document.getElementById('history-table').innerHTML = '<div class="text-center p-4 text-muted">無符合的歷史訂單紀錄。</div>';
+          return;
+        }
+
+        let uniqueUsers = [...new Set(globalAllRows.map(r => r.user).filter(Boolean))].sort();
+        let uniqueProducts = [...new Set(globalProducts.map(p => p.name).filter(Boolean))].sort();
+
+        let userDatalistHtml = '<datalist id="historyExistingUsers">';
+        uniqueUsers.forEach(u => { userDatalistHtml += `<option value="${u}">`; });
+        userDatalistHtml += '</datalist>';
+
+        let productDatalistHtml = '<datalist id="historyExistingProducts">';
+        uniqueProducts.forEach(p => { productDatalistHtml += `<option value="${p}">`; });
+        productDatalistHtml += '</datalist>';
+
+        let html = userDatalistHtml + productDatalistHtml;
+        html += '<table class="table table-bordered table-hover mb-0 align-middle text-center orders-large-table" id="editableHistoryTable">';
+        html += '<thead class="table-dark"><tr>';
+        html += '<th style="min-width: 90px;">訂購日期</th>';
+        html += '<th style="min-width: 90px;">採購日期</th>';
+        html += '<th style="min-width: 100px;">來源管道</th>';
+        html += '<th style="min-width: 110px;">客戶姓名</th>';
+        html += '<th style="min-width: 110px;">商品代號</th>';
+        html += '<th style="min-width: 180px; text-align: left;">商品名稱</th>';
+        html += '<th style="min-width: 120px;">商品分類</th>';
+        html += '<th style="min-width: 70px;">數量</th>';
+        html += '<th style="min-width: 80px;">單價</th>';
+        html += '<th style="min-width: 80px;">代購費</th>';
+        html += '<th style="min-width: 80px;">小計</th>';
+        html += '<th style="min-width: 100px;">應收/應付</th>';
+        html += '<th style="min-width: 100px;">付款狀態</th>';
+        html += '<th style="min-width: 110px;">訂單狀態</th>';
+        html += '</tr></thead><tbody>';
+
+        historyRows.forEach(row => {
+          let globalIndex = globalAllRows.findIndex(r => r.originalRowIndex === row.originalRowIndex);
+          let subtotal = Math.round((Number(row.qty) || 0) * (Number(row.price) || 0));
+          let fee = Number(row.fee) || 0;
+          let totalAmount = subtotal + fee;
+
+          let channelClass = getChannelColorClass(row.channel);
+          let channelSelect = `<select class="spreadsheet-input ${channelClass}" name="channel" onchange="updateHistoryChannelStyle(this)">`;
+          sourceOptions.forEach(opt => {
+            let selected = (row.channel === opt) ? 'selected' : '';
+            channelSelect += `<option value="${opt}" ${selected}>${opt}</option>`;
+          });
+          channelSelect += `</select>`;
+
+          let categorySelect = `<select class="spreadsheet-input" name="category">`;
+          categoryOptions.forEach(opt => {
+            let selected = (row.category === opt) ? 'selected' : '';
+            categorySelect += `<option value="${opt}" ${selected}>${opt}</option>`;
+          });
+          categorySelect += `</select>`;
+
+          let isTransferred = (row.payStatus === '已轉帳');
+          let paySelect = `<select class="spreadsheet-input fw-bold ${isTransferred ? 'text-success' : 'text-danger'}" name="payStatus" onchange="updateHistoryPayStyle(this)">
+            <option value="未付款" ${!isTransferred ? 'selected' : ''}>未付款</option>
+            <option value="已轉帳" ${isTransferred ? 'selected' : ''}>已轉帳</option>
+          </select>`;
+
+          let statusSelect = `<select class="spreadsheet-input fw-bold" name="orderStatus">`;
+          statusOptions.forEach(opt => {
+            let selected = (row.orderStatus === opt) ? 'selected' : '';
+            statusSelect += `<option value="${opt}" ${selected}>${opt}</option>`;
+          });
+          statusSelect += `</select>`;
+
+          html += `<tr data-original-row="${row.originalRowIndex}">
+            <td><input type="text" class="spreadsheet-input text-center" name="orderDate" value="${formatMonthDay(row.orderDate) || ''}" placeholder="MM/DD"></td>
+            <td><input type="text" class="spreadsheet-input text-center" name="purchaseDate" value="${formatMonthDay(row.purchaseDate) || ''}" placeholder="MM/DD"></td>
+            <td>${channelSelect}</td>
+            <td><input type="text" class="spreadsheet-input fw-bold" name="user" value="${row.user || ''}" placeholder="姓名" list="historyExistingUsers"></td>
+            <td><input type="text" class="spreadsheet-input text-center fw-bold text-primary" name="code" value="${row.code || ''}" placeholder="代號" oninput="lookupHistoryProductByCode(this)"></td>
+            <td><input type="text" class="spreadsheet-input fw-bold text-start" name="name" value="${row.name || ''}" placeholder="商品名稱" list="historyExistingProducts" oninput="lookupHistoryProductByName(this)" onchange="lookupHistoryProductByName(this)"></td>
+            <td>${categorySelect}</td>
+            <td><input type="number" step="any" class="spreadsheet-input text-center" name="qty" value="${row.qty !== undefined ? row.qty : ''}" min="0" oninput="recalcHistoryRow(this)"></td>
+            <td><input type="number" class="spreadsheet-input text-center" name="price" value="${row.price !== undefined ? row.price : ''}" min="0" oninput="recalcHistoryRow(this)"></td>
+            <td><input type="number" class="spreadsheet-input text-center" name="fee" value="${row.fee !== undefined ? row.fee : ''}" min="0" oninput="recalcHistoryRow(this)"></td>
+            <td class="fw-bold subtotal-cell">${subtotal}</td>
+            <td class="fw-bold text-danger total-cell">${totalAmount}</td>
+            <td>${paySelect}</td>
+            <td>${statusSelect}</td>
+          </tr>`;
+        });
+
+        html += '</tbody></table>';
+        document.getElementById('history-table').innerHTML = html;
+      }
+
+      function updateHistoryChannelStyle(selectEl) {
+        selectEl.className = 'spreadsheet-input ' + getChannelColorClass(selectEl.value);
+      }
+
+      function updateHistoryPayStyle(selectEl) {
+        if (selectEl.value === '已轉帳') {
+          selectEl.className = 'spreadsheet-input fw-bold text-success';
+        } else {
+          selectEl.className = 'spreadsheet-input fw-bold text-danger';
+        }
+      }
+
+      function lookupHistoryProductByCode(inputEl) {
+        let codeValue = inputEl.value.trim().toLowerCase();
+        if (!codeValue) return;
+
+        let foundProduct = globalProducts.find(p => p.code.toLowerCase() === codeValue);
+        if (foundProduct) {
+          let tr = inputEl.closest('tr');
+          let nameInput = tr.querySelector('[name="name"]');
+          let categorySelect = tr.querySelector('[name="category"]');
+          let priceInput = tr.querySelector('[name="price"]');
+          
+          if (nameInput) nameInput.value = foundProduct.name;
+          if (categorySelect && foundProduct.category) categorySelect.value = foundProduct.category;
+          if (priceInput) priceInput.value = foundProduct.price;
+
+          recalcHistoryRow(inputEl);
+        }
+      }
+
+      function lookupHistoryProductByName(inputEl) {
+        let nameValue = inputEl.value.trim().toLowerCase();
+        if (!nameValue) return;
+
+        let foundProduct = globalProducts.find(p => p.name.toLowerCase() === nameValue);
+        if (foundProduct) {
+          let tr = inputEl.closest('tr');
+          let codeInput = tr.querySelector('[name="code"]');
+          let categorySelect = tr.querySelector('[name="category"]');
+          let priceInput = tr.querySelector('[name="price"]');
+          
+          if (codeInput) codeInput.value = foundProduct.code;
+          if (categorySelect && foundProduct.category) categorySelect.value = foundProduct.category;
+          if (priceInput) priceInput.value = foundProduct.price;
+
+          recalcHistoryRow(inputEl);
+        }
+      }
+
+      function recalcHistoryRow(el) {
+        let tr = el.closest('tr');
+        let qtyStr = tr.querySelector('[name="qty"]').value;
+        let priceStr = tr.querySelector('[name="price"]').value;
+        let feeStr = tr.querySelector('[name="fee"]').value;
+
+        let qty = qtyStr !== '' ? Number(qtyStr) : 0;
+        let price = priceStr !== '' ? Number(priceStr) : 0;
+        let fee = feeStr !== '' ? Number(feeStr) : 0;
+
+        let subtotal = (qtyStr !== '' && priceStr !== '') ? Math.round(qty * price) : '';
+        let totalAmount = (subtotal !== '' ? subtotal : 0) + fee;
+
+        tr.querySelector('.subtotal-cell').innerText = subtotal;
+        tr.querySelector('.total-cell').innerText = totalAmount;
+      }
+
+      function saveHistoryStatusChanges() {
+        let trs = document.querySelectorAll('#editableHistoryTable tbody tr');
+        let updates = [];
+
+        trs.forEach(tr => {
+          let originalRowIndex = tr.getAttribute('data-original-row');
+          let orderDate = tr.querySelector('[name="orderDate"]').value;
+          let purchaseDate = tr.querySelector('[name="purchaseDate"]').value;
+          let channel = tr.querySelector('[name="channel"]').value;
+          let user = tr.querySelector('[name="user"]').value;
+          let code = tr.querySelector('[name="code"]').value;
+          let name = tr.querySelector('[name="name"]').value;
+          let category = tr.querySelector('[name="category"]').value;
+          let qty = tr.querySelector('[name="qty"]').value;
+          let price = tr.querySelector('[name="price"]').value;
+          let fee = tr.querySelector('[name="fee"]').value;
+          let payStatus = tr.querySelector('[name="payStatus"]').value;
+          let targetStatus = tr.querySelector('[name="orderStatus"]').value;
+
+          if (originalRowIndex) {
+            updates.push({
+              rowIndex: Number(originalRowIndex),
+              orderDate: orderDate,
+              purchaseDate: purchaseDate,
+              channel: channel,
+              user: user,
+              code: code,
+              name: name,
+              category: category,
+              qty: qty,
+              price: price,
+              fee: fee,
+              payStatus: payStatus,
+              targetStatus: targetStatus
+            });
+          }
+        });
+
+        let statusEl = document.getElementById('history-sync-status');
+        statusEl.innerText = "⏳ 儲存中...";
+
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.success) {
+              statusEl.innerText = "✨ 儲存成功";
+              loadData();
+            } else {
+              statusEl.innerText = "❌ 儲存失敗: " + res.message;
+            }
+          })
+          .batchUpdateRowStatus(updates);
+      }
+
+      function clearHistorySearch() {
+        document.getElementById('historySearchInput').value = '';
+        renderHistoryTable();
+      }
+
+      function renderProductDbTable() {
+        let keyword = (document.getElementById('productSearchInput').value || '').trim().toLowerCase();
+        let products = globalProducts;
+
+        if (keyword) {
+          products = products.filter(p => 
+            (p.code && p.code.toLowerCase().includes(keyword)) ||
+            (p.name && p.name.toLowerCase().includes(keyword)) ||
+            (p.category && p.category.toLowerCase().includes(keyword))
+          );
+        }
+
+        if (products.length === 0) {
+          document.getElementById('product-db-table').innerHTML = '<div class="text-center p-4 text-muted">目前沒有商品資訊紀錄。</div>';
+          return;
+        }
+
+        let html = '<table class="table table-bordered table-hover mb-0 align-middle text-center" id="editableProductTable">';
+        html += '<thead class="table-dark"><tr>';
+        html += '<th style="width: 18%;">商品代號</th>';
+        html += '<th style="width: 38%; text-align: left;">商品名稱</th>';
+        html += '<th style="width: 18%;">商品分類</th>';
+        html += '<th style="width: 18%;">商品價格</th>';
+        html += '<th style="width: 8%;">操作</th>';
+        html += '</tr></thead><tbody>';
+
+        products.forEach((p) => {
+          let globalIndex = globalProducts.findIndex(item => item.originalRowIndex === p.originalRowIndex);
+          let categorySelect = `<select class="spreadsheet-input" name="productCategory">`;
+          categoryOptions.forEach(opt => {
+            let selected = (p.category === opt) ? 'selected' : '';
+            categorySelect += `<option value="${opt}" ${selected}>${opt}</option>`;
+          });
+          categorySelect += `</select>`;
+
+          html += `<tr data-index="${globalIndex}" data-original-row="${p.originalRowIndex || ''}">
+            <td><input type="text" class="spreadsheet-input text-center fw-bold text-primary" name="productCode" value="${p.code || ''}" placeholder="代號"></td>
+            <td><input type="text" class="spreadsheet-input fw-bold text-start" name="productName" value="${p.name || ''}" placeholder="名稱"></td>
+            <td>${categorySelect}</td>
+            <td><input type="number" class="spreadsheet-input text-center fw-bold text-danger" name="productPrice" value="${p.price || 0}" min="0"></td>
+            <td><button type="button" class="btn btn-outline-danger btn-sm py-0 px-1" onclick="removeProductRow(this)"><i class="bi bi-trash"></i></button></td>
+          </tr>`;
+        });
+
+        html += '</tbody></table>';
+        document.getElementById('product-db-table').innerHTML = html;
+      }
+
+      function addNewProductRow() {
+        let tbody = document.querySelector('#editableProductTable tbody');
+        if (!tbody) {
+          renderProductDbTable();
+          tbody = document.querySelector('#editableProductTable tbody');
+        }
+        let categorySelect = `<select class="spreadsheet-input" name="productCategory">`;
+        categoryOptions.forEach(opt => {
+          categorySelect += `<option value="${opt}">${opt}</option>`;
+        });
+        categorySelect += `</select>`;
+
+        let newRowHtml = `<tr data-index="new_${Date.now()}" data-original-row="">
+          <td><input type="text" class="spreadsheet-input text-center fw-bold text-primary" name="productCode" value="" placeholder="代號"></td>
+          <td><input type="text" class="spreadsheet-input fw-bold text-start" name="productName" value="" placeholder="名稱"></td>
+          <td>${categorySelect}</td>
+          <td><input type="number" class="spreadsheet-input text-center fw-bold text-danger" name="productPrice" value="0" min="0"></td>
+          <td><button type="button" class="btn btn-outline-danger btn-sm py-0 px-1" onclick="removeProductRow(this)"><i class="bi bi-trash"></i></button></td>
+        </tr>`;
+        tbody.insertAdjacentHTML('afterbegin', newRowHtml);
+      }
+
+      function removeProductRow(btn) {
+        let tr = btn.closest('tr');
+        let originalRowIndex = tr.getAttribute('data-original-row');
+
+        if (originalRowIndex) {
+          if (!confirm('確定要從商品資料庫中永久刪除此商品嗎？')) return;
+          let statusEl = document.getElementById('product-sync-status');
+          statusEl.innerText = "⏳ 刪除中...";
+
+          google.script.run
+            .withSuccessHandler(res => {
+              if (res.success) {
+                statusEl.innerText = "✨ 刪除成功";
+                loadProductData();
+              } else {
+                statusEl.innerText = "❌ 刪除失敗: " + res.message;
+              }
+            })
+            .deleteProductRow(originalRowIndex);
+        } else {
+          tr.remove();
+        }
+      }
+
+      let isSavingProducts = false;
+      function saveAllProductsTable() {
+        if (isSavingProducts) return;
+        isSavingProducts = true;
+        let btn = document.getElementById('btnSaveProducts');
+        if (btn) btn.disabled = true;
+
+        let trs = document.querySelectorAll('#editableProductTable tbody tr');
+        let productsData = [];
+
+        trs.forEach(tr => {
+          let originalRowIndex = tr.getAttribute('data-original-row');
+          let code = tr.querySelector('[name="productCode"]').value;
+          let name = tr.querySelector('[name="productName"]').value;
+          let category = tr.querySelector('[name="productCategory"]').value;
+          let price = tr.querySelector('[name="productPrice"]').value;
+
+          if (code || name) {
+            productsData.push({
+              originalRowIndex: originalRowIndex ? Number(originalRowIndex) : null,
+              code: code,
+              name: name,
+              category: category,
+              price: price
+            });
+          }
+        });
+
+        let statusEl = document.getElementById('product-sync-status');
+        statusEl.innerText = "⏳ 儲存中...";
+
+        google.script.run
+          .withSuccessHandler(res => {
+            isSavingProducts = false;
+            if (btn) btn.disabled = false;
+            if (res.success) {
+              statusEl.innerText = "✨ 儲存成功";
+              loadProductData();
+            } else {
+              statusEl.innerText = "❌ 儲存失敗: " + res.message;
+            }
+          })
+          .withFailureHandler(err => {
+            isSavingProducts = false;
+            if (btn) btn.disabled = false;
+            statusEl.innerText = "❌ 儲存失敗";
+          })
+          .saveAllProducts(productsData);
+      }
+
+      function clearProductSearch() {
+        document.getElementById('productSearchInput').value = '';
+        renderProductDbTable();
+      }
+    </script>
+  </body>
+</html>

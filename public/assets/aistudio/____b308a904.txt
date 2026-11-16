@@ -1,0 +1,355 @@
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('Index')
+    .setTitle('現場採購管理系統')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+function getPurchaseData() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('訂購資料');
+  if (!sheet) return { rows: [], dates: [] };
+  
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return { rows: [], dates: [] };
+  
+  var data = sheet.getRange(2, 1, lastRow - 1, 15).getValues();
+  var rows = [];
+  var datesSet = {};
+  
+  data.forEach(function(row, index) {
+    var orderDate = row[0] ? formatDateStr(row[0]) : '';
+    var purchaseDate = row[1] ? formatDateStr(row[1]) : '';
+    var channel = String(row[2] || '').trim();
+    var user = String(row[3] || '').trim();
+    var code = String(row[4] || '').trim();
+    var name = String(row[5] || '').trim();
+    var category = String(row[6] || '').trim();
+    var qty = row[7];
+    var price = row[8];
+    var fee = row[9];
+    var subtotal = row[10];
+    var totalAmount = row[11];
+    var shippingChannel = String(row[12] || '').trim();
+    var payStatus = String(row[13] || '').trim();
+    var orderStatus = String(row[14] || '').trim();
+    
+    if (orderStatus === '未買' && shippingChannel !== '線上代購' && purchaseDate) {
+      datesSet[purchaseDate] = true;
+    }
+    
+    rows.push({
+      originalRowIndex: index + 2,
+      orderDate: orderDate,
+      purchaseDate: purchaseDate,
+      date: purchaseDate,
+      channel: channel,
+      user: user,
+      code: code,
+      name: name,
+      category: category,
+      qty: qty,
+      price: price,
+      fee: fee,
+      subtotal: subtotal,
+      totalAmount: totalAmount,
+      shippingChannel: shippingChannel,
+      payStatus: payStatus,
+      orderStatus: orderStatus
+    });
+  });
+  
+  var dates = Object.keys(datesSet).sort();
+  return { rows: rows, dates: dates };
+}
+
+function getProductsData() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('商品資訊');
+  if (!sheet) return { products: [] };
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return { products: [] };
+
+  var data = sheet.getRange(2, 1, lastRow - 1, 4).getValues();
+  var products = [];
+
+  data.forEach(function(row, index) {
+    var code = String(row[0] || '').trim();
+    var name = String(row[1] || '').trim();
+    var category = String(row[2] || '').trim();
+    var price = Number(row[3]) || 0;
+
+    if (code || name) {
+      products.push({
+        originalRowIndex: index + 2,
+        code: code,
+        name: name,
+        category: category,
+        price: price
+      });
+    }
+  });
+
+  return { products: products };
+}
+
+// 💡 取貨通知資料產生器 (非已取皆生成，缺貨不計入總金額)
+function getNotificationData(targetDate) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('訂購資料');
+  if (!sheet) return { success: false, data: {} };
+  
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return { success: true, data: {} };
+  
+  var data = sheet.getRange(2, 1, lastRow - 1, 15).getValues();
+  var channelGroups = {};
+  
+  data.forEach(function(row) {
+    var purchaseDate = row[1] ? formatDateStr(row[1]) : '';
+    var channel = String(row[2] || 'LINE').trim();
+    var user = String(row[3] || '未具名').trim();
+    var productCode = String(row[4] || '').trim();
+    var productName = String(row[5] || '').trim();
+    var qty = Number(row[7]) || 1;
+    var price = Number(row[8]) || 0;
+    var fee = Number(row[9]) || 0;
+    var orderStatus = String(row[14] || '').trim();
+
+    var isDateMatch = !targetDate || (purchaseDate === targetDate);
+
+    // 💡 1. 只要不是「已取」都自動生成通知
+    if (orderStatus !== '已取' && isDateMatch) {
+      if (!channelGroups[channel]) {
+        channelGroups[channel] = {};
+      }
+      if (!channelGroups[channel][user]) {
+        channelGroups[channel][user] = {
+          userName: user,
+          items: [],
+          totalSubtotal: 0,
+          totalFee: 0
+        };
+      }
+      
+      var isOos = (orderStatus === '缺貨');
+      var itemSubtotal = Math.round(qty * price);
+
+      channelGroups[channel][user].items.push({
+        code: productCode,
+        name: productName,
+        qty: qty,
+        price: price,
+        subtotal: itemSubtotal,
+        isOutOfStock: isOos,
+        orderStatus: orderStatus
+      });
+      
+      // 💡 3. 缺貨項目不計算在商品金額與代購費上面
+      if (!isOos) {
+        channelGroups[channel][user].totalSubtotal += itemSubtotal;
+        channelGroups[channel][user].totalFee += fee;
+      }
+    }
+  });
+
+  return { success: true, data: channelGroups };
+}
+
+function batchUpdateRowStatus(updates) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('訂購資料');
+  if (!sheet || !updates || updates.length === 0) return { success: false, message: '無效的資料' };
+
+  var lastRow = sheet.getLastRow();
+  var allDates = [];
+  if (lastRow >= 2) {
+    var dateValues = sheet.getRange(2, 2, lastRow - 1, 1).getValues();
+    dateValues.forEach(function(r) {
+      if (r[0]) {
+        var dStr = formatDateStr(r[0]);
+        if (dStr && allDates.indexOf(dStr) === -1) allDates.push(dStr);
+      }
+    });
+  }
+  allDates.sort();
+
+  updates.forEach(function(item) {
+    var realRowIndex = item.rowIndex;
+    if (realRowIndex && realRowIndex >= 2 && realRowIndex <= lastRow) {
+      if (item.orderDate !== undefined) sheet.getRange(realRowIndex, 1).setValue(item.orderDate);
+      if (item.purchaseDate !== undefined) sheet.getRange(realRowIndex, 2).setValue(item.purchaseDate);
+      if (item.channel !== undefined) sheet.getRange(realRowIndex, 3).setValue(item.channel);
+      if (item.user !== undefined) sheet.getRange(realRowIndex, 4).setValue(item.user);
+      if (item.code !== undefined) sheet.getRange(realRowIndex, 5).setValue(item.code);
+      if (item.name !== undefined) sheet.getRange(realRowIndex, 6).setValue(item.name);
+      if (item.category !== undefined) sheet.getRange(realRowIndex, 7).setValue(item.category);
+      if (item.qty !== undefined) sheet.getRange(realRowIndex, 8).setValue(item.qty);
+      if (item.price !== undefined) sheet.getRange(realRowIndex, 9).setValue(item.price);
+      if (item.fee !== undefined) sheet.getRange(realRowIndex, 10).setValue(item.fee);
+
+      // 💡 修正：當點擊購買完成且為缺貨時，將「採購日期（欄位 2）」改為下一個最近日期，並將訂單狀態（欄位 15）改回「未買」
+      if (item.isOutofStockToUnbought) {
+        var currentPurchaseDate = formatDateStr(sheet.getRange(realRowIndex, 2).getValue());
+        var nextDate = getNextPurchaseDate(currentPurchaseDate, allDates);
+        sheet.getRange(realRowIndex, 2).setValue(nextDate); // 寫入欄位 2 (採購日期)
+        sheet.getRange(realRowIndex, 15).setValue('未買');  // 狀態改回未買
+      } else if (item.isOutofStock) {
+        sheet.getRange(realRowIndex, 15).setValue('缺貨');
+      } else if (item.targetStatus) {
+        sheet.getRange(realRowIndex, 15).setValue(item.targetStatus);
+      }
+
+      if (item.payStatus) {
+        sheet.getRange(realRowIndex, 14).setValue(item.payStatus);
+      }
+
+      var qty = Number(sheet.getRange(realRowIndex, 8).getValue()) || 0;
+      var price = Number(sheet.getRange(realRowIndex, 9).getValue()) || 0;
+      var fee = Number(sheet.getRange(realRowIndex, 10).getValue()) || 0;
+      var subtotal = Math.round(qty * price);
+      
+      sheet.getRange(realRowIndex, 11).setValue(subtotal);
+      sheet.getRange(realRowIndex, 12).setValue(subtotal + fee);
+    }
+  });
+
+  return { success: true };
+}
+
+function getNextPurchaseDate(currentDate, sortedDates) {
+  if (!sortedDates || sortedDates.length === 0) return currentDate;
+  
+  for (var i = 0; i < sortedDates.length; i++) {
+    if (sortedDates[i] > currentDate) {
+      return sortedDates[i];
+    }
+  }
+  
+  if (currentDate) {
+    var parts = currentDate.split('/');
+    if (parts.length === 2) {
+      var year = new Date().getFullYear();
+      var d = new Date(year, Number(parts[0]) - 1, Number(parts[1]));
+      d.setDate(d.getDate() + 7);
+      var m = String(d.getMonth() + 1).padStart(2, '0');
+      var day = String(d.getDate()).padStart(2, '0');
+      return m + '/' + day;
+    }
+  }
+  return currentDate;
+}
+
+function saveAllOrders(rowsData) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('訂購資料');
+  if (!sheet) return { success: false, message: '找不到訂購資料工作表' };
+
+  rowsData.forEach(function(r) {
+    var qtyNum = (r.qty !== '' && r.qty !== null && r.qty !== undefined) ? Number(r.qty) : '';
+    var priceNum = (r.price !== '' && r.price !== null && r.price !== undefined) ? Number(r.price) : '';
+    var feeNum = (r.fee !== '' && r.fee !== null && r.fee !== undefined) ? Number(r.fee) : '';
+
+    var subtotal = (qtyNum !== '' && priceNum !== '') ? Math.round(qtyNum * priceNum) : '';
+    var totalAmount = (subtotal !== '' ? subtotal : 0) + (feeNum !== '' ? feeNum : 0);
+
+    var rowValues = [
+      r.orderDate || '',
+      r.purchaseDate || '',
+      r.channel || 'LINE',
+      r.user || '',
+      r.code || '',
+      r.name || '',
+      r.category || '',
+      qtyNum,
+      priceNum,
+      feeNum,
+      subtotal,
+      totalAmount,
+      r.shippingChannel || '',
+      r.payStatus || '未付款',
+      '未買'
+    ];
+
+    if (r.originalRowIndex) {
+      sheet.getRange(r.originalRowIndex, 1, 1, 15).setValues([rowValues]);
+    } else {
+      sheet.appendRow(rowValues);
+    }
+  });
+
+  return { success: true };
+}
+
+// 💡 直接透過傳入的真實行數進行試算表刪除
+function deleteOrderRow(payload) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('訂購資料');
+  if (!sheet) return { success: false, message: '找不到訂購資料工作表' };
+  
+  var rowIndex = Number(payload.rowIndex);
+  var lastRow = sheet.getLastRow();
+  
+  if (rowIndex >= 2 && rowIndex <= lastRow) {
+    sheet.deleteRow(rowIndex);
+    SpreadsheetApp.flush(); // 強制寫入並同步試算表
+    return { success: true };
+  }
+  
+  return { success: false, message: '無效的行數，無法刪除' };
+}
+
+function saveAllProducts(productsData) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('商品資訊');
+  if (!sheet) return { success: false, message: '找不到商品資訊工作表' };
+
+  productsData.forEach(function(p) {
+    var rowValues = [
+      p.code || '',
+      p.name || '',
+      p.category || '',
+      Number(p.price) || 0
+    ];
+
+    if (p.originalRowIndex) {
+      sheet.getRange(p.originalRowIndex, 1, 1, 4).setValues([rowValues]);
+    } else {
+      sheet.appendRow(rowValues);
+    }
+  });
+
+  return { success: true };
+}
+
+function deleteProductRow(originalRowIndex) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('商品資訊');
+  if (!sheet) return { success: false, message: '找不到商品資訊工作表' };
+
+  var realRowIndex = Number(originalRowIndex);
+  if (realRowIndex >= 2 && realRowIndex <= sheet.getLastRow()) {
+    sheet.deleteRow(realRowIndex);
+    return { success: true };
+  }
+  return { success: false, message: '無效的行數' };
+}
+
+function formatDateStr(val) {
+  if (!val) return '';
+  if (val instanceof Date) {
+    var m = String(val.getMonth() + 1).padStart(2, '0');
+    var d = String(val.getDate()).padStart(2, '0');
+    return m + '/' + d;
+  }
+  var str = String(val).trim();
+  var parts = str.split(/[-/]/);
+  if (parts.length >= 3) {
+    return String(parts[1]).padStart(2, '0') + '/' + String(parts[2].substring(0, 2)).padStart(2, '0');
+  }
+  if (parts.length === 2) {
+    return String(parts[0]).padStart(2, '0') + '/' + String(parts[1]).padStart(2, '0');
+  }
+  return str;
+}

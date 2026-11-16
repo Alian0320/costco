@@ -1,0 +1,6 @@
+{
+  "name": "現場採購管理系統",
+  "description": "整合現場採購、線上代購、待取清單、取貨通知訊息產生器、訂單資料、歷史訂單與商品資訊，並即時對應同步至 Google 試算表。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
